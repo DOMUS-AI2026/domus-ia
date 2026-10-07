@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DOMUS AI — Apresentação</title>
+<style>
+:root{--cyan:#22e6d0;--violet:#7c4dff;--bg:#05080d;--txt:#e8f0f5;--muted:#9db0c0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;}
+.deck{position:relative;height:100vh;height:100dvh;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:8vh 8vw;gap:18px;}
+.slide.active{display:flex;}
+.tag{color:var(--cyan);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+h1{font-size:clamp(28px,5vw,52px);margin:0;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;line-height:1.1;}
+h2{font-size:clamp(20px,3vw,30px);margin:0;color:var(--txt);}
+p.lead{font-size:clamp(15px,2vw,19px);color:var(--muted);max-width:720px;line-height:1.5;margin:0;}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;max-width:640px;}
+li{font-size:clamp(14px,1.8vw,18px);padding:10px 16px;border:1px solid #1c2531;border-radius:12px;background:#0c1118;}
+li b{color:var(--cyan);}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.chip{padding:8px 14px;border-radius:20px;background:linear-gradient(90deg,rgba(34,230,208,.12),rgba(124,77,255,.12));border:1px solid #1c2531;font-size:14px;}
+.arrow{color:var(--muted);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:5;}
+.nav button{background:#0c1118;border:1px solid #1c2531;color:var(--txt);width:38px;height:38px;border-radius:50%;font-size:16px;}
+.dots{display:flex;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#1c2531;}
+.dot.on{background:var(--cyan);}
+.count{position:fixed;top:16px;right:18px;font-size:12px;color:var(--muted);}
+</style></head>
+<body>
+<div class="count" id="count"></div>
+<div class="deck" id="deck"></div>
+<div class="nav">
+  <button onclick="go(-1)">‹</button>
+  <div class="dots" id="dots"></div>
+  <button onclick="go(1)">›</button>
+</div>
+<script>
+const slides = [
+`<span class="tag">DOMUS AI</span>
+ <h1>Inteligência para uma<br>residência mais eficiente.</h1>
+ <p class="lead">O sensor percebe. O DOMUS pensa. O atuador executa.</p>`,
+
+`<span class="tag">O conceito</span>
+ <h2>Um gêmeo digital da casa</h2>
+ <div class="flow">
+   <span class="chip">Sensores</span><span class="arrow">→</span>
+   <span class="chip">DOMUS AI</span><span class="arrow">→</span>
+   <span class="chip">Análise</span><span class="arrow">→</span>
+   <span class="chip">Alerta</span><span class="arrow">→</span>
+   <span class="chip">Automação</span>
+ </div>
+ <p class="lead">Não é um dashboard — é o comportamento real da casa, refletido em tempo real na planta 2D e 3D.</p>`,
+
+`<span class="tag">Planta 2D / 3D</span>
+ <h2>A mesma casa, dois modos</h2>
+ <ul>
+   <li><b>2D</b> — planta interativa, 120 m², 9 ambientes com metragem real</li>
+   <li><b>3D</b> — cena navegável (Three.js), câmera livre + presets Geral/Superior/Isométrica</li>
+   <li><b>Um único estado</b> — mudar em um modo reflete instantaneamente no outro</li>
+ </ul>`,
+
+`<span class="tag">Sensores &amp; dispositivos</span>
+ <h2>Cada ponto é independente</h2>
+ <div class="grid2">
+   <ul><li>👤 Presença · 🌡️ Temperatura · ⚡ Energia</li>
+       <li>💧 Água · 🚨 Vazamento · 🪟 Janela / 🚪 Porta</li></ul>
+   <ul><li>💡 Luz, 🔧 Válvula, 🌀 Máquina — <b>comandáveis</b></li>
+       <li>Status próprio: normal · atenção · crítico · em uso</li></ul>
+ </div>`,
+
+`<span class="tag">Score &amp; Alertas</span>
+ <h2>A casa se explica</h2>
+ <ul>
+   <li><b>DOMUS Score</b> — 6 categorias (Energia, Água, Eficiência, Segurança, Sustentabilidade, Comportamento)</li>
+   <li><b>Alert Center</b> — lista o problema e o botão de ação certo (Fechar válvula, Desligar luz...)</li>
+   <li><b>Automação</b> — 3 regras reais que resolvem sozinhas, com log de execução</li>
+ </ul>`,
+
+`<span class="tag">Painéis</span>
+ <h2>Água · Energia · Segurança</h2>
+ <div class="grid2">
+   <ul><li>💧 <b>Water</b> — consumo hoje vs. média, desvio %, válvula principal</li>
+       <li>⚡ <b>Energy</b> — consumo, custo estimado, ranking de equipamentos</li></ul>
+   <ul><li>🛡️ <b>Security</b> — porta/janela, ambientes ocupados, eventos recentes</li></ul>
+ </div>`,
+
+`<span class="tag">Arquitetura &amp; próximos passos</span>
+ <h2>Pronto para escalar</h2>
+ <ul>
+   <li><b>Hoje</b> — front-end funcional completo, standalone, para a ExpoTech</li>
+   <li><b>Backend pronto</b> — FastAPI + MySQL + MongoDB + WebSocket, aguardando testes</li>
+   <li><b>Depois</b> — app mobile, previsões com Data Science, gráficos e recomendações</li>
+ </ul>`
+];
+
+const deck = document.getElementById('deck');
+slides.forEach((html,i)=>{ const d=document.createElement('div'); d.className='slide'+(i===0?' active':''); d.innerHTML=html; deck.appendChild(d); });
+const dotsEl = document.getElementById('dots');
+slides.forEach((_,i)=>{ const dot=document.createElement('div'); dot.className='dot'+(i===0?' on':''); dot.onclick=()=>show(i); dotsEl.appendChild(dot); });
+let idx=0;
+function show(i){
+  idx=(i+slides.length)%slides.length;
+  document.querySelectorAll('.slide').forEach((s,n)=>s.classList.toggle('active',n===idx));
+  document.querySelectorAll('.dot').forEach((d,n)=>d.classList.toggle('on',n===idx));
+  document.getElementById('count').textContent=(idx+1)+' / '+slides.length;
+}
+function go(d){ show(idx+d); }
+document.addEventListener('keydown', e=>{ if(e.key==='ArrowRight') go(1); if(e.key==='ArrowLeft') go(-1); });
+show(0);
+</script>
+</body></html>

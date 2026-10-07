@@ -1,65 +1,82 @@
-# 🏠 DOMUS AI
-### Inteligência para uma residência mais eficiente
+# DOMUS AI
 
-> Projeto acadêmico desenvolvido para a **ExpoTech**.
+Plataforma de inteligência residencial — gêmeo digital da casa (planta 2D/3D,
+sensores, alertas, DOMUS Score, automações) com 3 planos (START / SMART / AI),
+backend em FastAPI + MySQL + MongoDB, e scaffolds de integração e app mobile.
 
-## 💡 Sobre o projeto
+> "O sensor percebe. O DOMUS pensa. O atuador executa."
 
-O **DOMUS AI** é uma plataforma de inteligência residencial que utiliza dados provenientes de sensores e dispositivos conectados para compreender o funcionamento de uma residência.
+## Estrutura do repositório
 
-A solução integra informações relacionadas ao **consumo de energia e água, ocupação dos ambientes, utilização de equipamentos e eventos de segurança**.
+```
+domus-ai/
+├── frontend/
+│   ├── domus-app.html        ← o app completo (abra direto no navegador, sem build)
+│   └── legacy/                 primeiros protótipos (planta 2D e 3D isoladas)
+├── backend/                   FastAPI + MySQL + MongoDB + WebSocket (ver backend/README.md)
+├── integration/                guia + cliente JS para o front-end falar com a API
+├── mobile-ios-scan/            scaffold Swift (RoomPlan) p/ escanear um ambiente com LiDAR
+├── site-seo/                   demo.html pronto p/ Netlify, sitemap.xml, robots.txt
+└── presentation/               apresentação (slides) em HTML sobre o projeto
+```
 
-A partir desses dados, o sistema busca realizar análises, identificar padrões e anomalias, prever comportamentos e gerar recomendações para o morador.
+## O que já funciona (`frontend/domus-app.html`)
 
-Dessa forma, a residência deixa de apenas registrar informações e passa a utilizar seus próprios dados para auxiliar na tomada de decisões.
+Arquivo único, HTML + JS puro + Three.js por CDN — sem build, sem `npm install`.
+Abra localmente ou publique em qualquer hospedagem estática.
 
-## 🎯 Objetivo
+- Seletor de plano **DOMUS START / SMART / AI**, cada um com sua planta, área e
+  quantidade de sensores (iguais aos planos da landing)
+- Planta **2D e 3D** da mesma casa, alternáveis, com um único estado compartilhado
+- Sensores e dispositivos individuais (presença, temperatura, água, vazamento,
+  luz, ar-condicionado com modo frio/quente/ambiente, válvula, porta, janela,
+  máquina de lavar), com comando e agendamento por horário
+- **DOMUS Score**, **Alert Center**, **DOMUS Water/Energy/Security**, e
+  **DOMUS Automation** (regras reais que resolvem sozinhas, com atraso e log)
+- Cor do ambiente e Score reagem tanto a simulações quanto a comandos manuais
 
-O DOMUS AI busca transformar **dados brutos de uma residência em informações úteis para o dia a dia**, contribuindo para uma casa:
+## O que ainda depende de infraestrutura própria
 
-- ⚡ Mais eficiente
-- 💰 Mais econômica
-- 🌱 Mais sustentável
-- 🔐 Mais segura
+- **`backend/`** — não foi testado contra um MySQL/MongoDB reais ainda (ver
+  "problemas conhecidos" no `backend/README.md`). Pronto como ponto de partida,
+  não como produção.
+- **`mobile-ios-scan/`** — só funciona dentro de um app iOS nativo de verdade,
+  com aparelho LiDAR. É scaffold, não um app publicável por si só.
+- **`integration/`** — conecta o `domus-app.html` ao backend; só funciona
+  quando os dois rodam no seu próprio domínio (não dentro do Claude).
 
-## 🔎 Problema
+## Como colocar no ar hoje (caminho mais simples)
 
-Uma residência equipada com sensores e dispositivos conectados pode gerar uma grande quantidade de dados sobre seu funcionamento.
+1. Suba `frontend/domus-app.html` (ou `site-seo/demo.html`, já com SEO) no Netlify.
+2. Linke um botão da sua landing atual para esse arquivo.
+3. Backend, integração e app mobile entram depois, como evolução.
 
-Entretanto, simplesmente coletar esses dados não é suficiente.
+## Subindo este repositório no GitHub
 
-O desafio do DOMUS AI é **organizar, analisar e transformar essas informações em conhecimento útil**, permitindo identificar comportamentos, padrões, anomalias e oportunidades de melhoria dentro da residência.
+Dentro desta pasta (depois de extrair o zip):
 
-## 🚀 Proposta
+```bash
+git init
+git add .
+git commit -m "DOMUS AI — versão inicial completa"
+git branch -M main
+git remote add origin https://github.com/SEU_USUARIO/domus-ai.git
+git push -u origin main
+```
 
-O projeto parte da seguinte ideia:
+Se o repositório no GitHub já existir com algo dentro (ex: um README padrão),
+troque o push por:
 
-**Sensores e dispositivos → Dados → Processamento → Análise → Insights → Recomendações**
+```bash
+git pull origin main --allow-unrelated-histories
+git push -u origin main
+```
 
-A partir dessa estrutura, o DOMUS AI pretende construir uma solução capaz de utilizar os dados da residência para compreender seu funcionamento e apoiar decisões relacionadas à eficiência, economia, sustentabilidade e segurança.
+## Histórico do projeto
 
-## 🧠 Requisitos acadêmicos
-
-O desenvolvimento do projeto será orientado pelos seguintes requisitos:
-
-| Área | Aplicação no projeto |
-|---|---|
-| **Data Science Fundamentals** | Ciclo de vida do projeto de dados, análise exploratória (EDA) e definição do problema |
-| **Advanced Databases and Big Data** | Modelagem relacional e NoSQL e definição de uma decisão de arquitetura |
-| **Applied Math for Data Science** | Estatística descritiva e aplicação de técnica de modelagem matemática |
-| **Data Visualization and Analysis** | Dashboard para comunicação dos dados e insights |
-| **Data Engineering** | Pipeline documentado de ingestão, transformação e entrega dos dados |
-
-## 👥 Equipe
-
-- **Andrey Damasceno** — [@Andrey-Damasceno](https://github.com/Andrey-Damasceno)
-- **Ana Reis** — [@Ana-Reis22](https://github.com/Ana-Reis22)
-- **João Vaz** — [@joaovaz158530-droid](https://github.com/joaovaz158530-droid)
-- **Matheus Sousa** — [@matheus-220307](https://github.com/matheus-220307)
-- **Pedro Santtana** - [@PedroSantt2007](https://github.com/PedroSantt2007)
-
----
-
-> 🎓 Projeto acadêmico — **ExpoTech**
->
-> **DOMUS AI — Inteligência para uma residência mais eficiente**
+Este repositório foi construído em etapas, nesta ordem: planta 2D interativa →
+planta 3D (Three.js) → unificação num único app com estado compartilhado →
+sensores e dispositivos individuais → DOMUS Score e Alert Center → Water /
+Energy / Security → Automation → backend (FastAPI/MySQL/MongoDB) → WebSocket
+tempo real → guia de integração → scanner de ambiente (RoomPlan) → múltiplos
+planos (START/SMART/AI). Cada pasta reflete o estado final dessa etapa.

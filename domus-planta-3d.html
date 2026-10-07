@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DOMUS AI — Planta 3D</title>
+<style>
+:root{
+  --cyan:#22e6d0; --violet:#7c4dff; --bg:#05080d; --panel:#0c1118;
+  --line:#1c2531; --txt:#e8f0f5; --muted:#8ba0b3;
+  --green:#2ecc71; --yellow:#f5c542; --red:#ff4d4d;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Roboto,sans-serif;height:100%;}
+header{padding:14px 16px 6px;}
+h1{font-size:18px;margin:0 0 2px;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;}
+.sub{color:var(--muted);font-size:12px;margin:0;}
+.wrap{display:flex;flex-direction:column;gap:12px;padding:0 12px 20px;}
+.scene-box{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;height:52vh;min-height:320px;}
+#three-canvas{width:100%;height:100%;display:block;touch-action:none;}
+.cams{position:absolute;top:8px;left:8px;display:flex;gap:6px;flex-wrap:wrap;}
+.camBtn{background:rgba(5,8,13,.7);border:1px solid var(--line);color:var(--txt);font-size:11px;padding:6px 9px;border-radius:8px;}
+.hint{position:absolute;bottom:8px;right:10px;font-size:10px;color:var(--muted);background:rgba(5,8,13,.6);padding:4px 8px;border-radius:8px;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;}
+.panel h2{margin:0 0 4px;font-size:18px;}
+.panel .area{color:var(--muted);font-size:13px;margin-bottom:12px;}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px;}
+.row span:first-child{color:var(--muted);}
+.badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.badge.normal{background:rgba(46,204,113,.15);color:var(--green);}
+.badge.atencao{background:rgba(245,197,66,.15);color:var(--yellow);}
+.badge.critico{background:rgba(255,77,77,.15);color:var(--red);}
+.badge.equipamento{background:rgba(34,230,208,.15);color:var(--cyan);}
+.simGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.simGrid button{font-size:12px;padding:8px 8px;text-align:left;}
+.empty{color:var(--muted);font-size:13px;}
+.sim{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+button{background:linear-gradient(90deg,var(--cyan),var(--violet));border:none;color:#04080c;font-weight:700;padding:9px 14px;border-radius:10px;font-size:13px;}
+button.secondary{background:transparent;border:1px solid var(--line);color:var(--txt);}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);padding:0 4px;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+.note{font-size:11px;color:var(--muted);line-height:1.5;padding:0 4px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>DOMUS AI</h1>
+  <p class="sub">Planta 3D navegável · mesma planta e estados da versão 2D (Etapa 4)</p>
+</header>
+<div class="wrap">
+  <div class="scene-box">
+    <canvas id="three-canvas"></canvas>
+    <div class="cams">
+      <button class="camBtn" onclick="setCam('geral')">Geral</button>
+      <button class="camBtn" onclick="setCam('topo')">Superior</button>
+      <button class="camBtn" onclick="setCam('iso')">Isométrica</button>
+      <button class="camBtn" onclick="setCam('reset')">Resetar</button>
+    </div>
+    <div class="hint">arraste · pinça para zoom</div>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--green)"></span>Normal</span>
+    <span><span class="dot" style="background:var(--yellow)"></span>Atenção</span>
+    <span><span class="dot" style="background:var(--red)"></span>Crítico</span>
+  </div>
+  <div class="panel" id="panel">
+    <p class="empty">Toque em um ambiente na cena 3D para ver os sensores.</p>
+  </div>
+  <div class="sim" style="flex-direction:column;align-items:stretch;">
+    <div class="simGrid" id="simGrid"></div>
+    <button class="secondary" style="margin-top:10px" onclick="restaurarCasa()">↺ Restaurar casa (todos os ambientes)</button>
+  </div>
+  <p class="note">Mesma planta e mesmas medidas da versão 2D (120 m², 12m × 10m). Nesta etapa cada protótipo tem sua própria cópia do estado; na integração final (Etapa 5) 2D, 3D e dashboard vão ler o mesmo store único.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// ---------- ESTADO (mesmo modelo de dados da versão 2D) ----------
+// x,z em metros, w=largura(X), d=profundidade(Z)
+const rooms = {
+  sala:      {name:"Sala / Jantar", area:24, x:0,    z:0,    w:8,    d:3,    status:"normal", sensors:{presenca:"Detectada", temp:24.2, luz:"Ligada", consumo:0.6}},
+  cozinha:   {name:"Cozinha",       area:12, x:8,    z:0,    w:4,    d:3,    status:"normal", sensors:{presenca:"Não detectada", temp:23.5, energia:1.1}},
+  quarto1:   {name:"Quarto 1",      area:12, x:0,    z:3,    w:4.24, d:2.83, status:"normal", sensors:{presenca:"Não detectada", temp:22.8, luz:"Desligada"}},
+  escritorio:{name:"Escritório",    area:10, x:4.24, z:3,    w:3.52, d:2.83, status:"normal", sensors:{presenca:"Detectada", energia:0.9, temp:23.0}},
+  quarto2:   {name:"Quarto 2",      area:12, x:7.76, z:3,    w:4.24, d:2.83, status:"normal", sensors:{presenca:"Não detectada", temp:22.6, energia:0.3}},
+  banheiro:  {name:"Banheiro",      area:6,  x:0,    z:5.83, w:1.44, d:4.17, status:"normal", sensors:{agua:"120 L/dia", vazamento:"Não detectado", valvula:"Aberta"}},
+  suite:     {name:"Suíte",         area:16, x:1.44, z:5.83, w:3.84, d:4.17, status:"normal", sensors:{presenca:"Detectada", temp:23.8}},
+  banhosuite:{name:"Banho Suíte",   area:5,  x:5.28, z:5.83, w:1.2,  d:4.17, status:"normal", sensors:{luz:"Desligada", agua:"40 L/dia"}},
+  lavanderia:{name:"Lavanderia",    area:23, x:6.48, z:5.83, w:5.52, d:4.17, status:"normal", sensors:{maquina:"Parada", agua:"0 L/h"}}
+};
+let selected = null;
+const defaults = JSON.parse(JSON.stringify(rooms)); // baseline p/ "Restaurar casa"
+
+function colorFor(status){
+  return status==="critico" ? 0xff4d4d : status==="atencao" ? 0xf5c542 : status==="equipamento" ? 0x1a5f5a : 0x123b3a;
+}
+function strokeFor(status){
+  return status==="critico" ? 0xff4d4d : status==="atencao" ? 0xf5c542 : 0x22e6d0;
+}
+
+// evento realista por cômodo (seção 11 do briefing)
+const events = {
+  sala:       {label:"Ar-condicionado sem presença", status:"atencao",     sensors:{presenca:"Não detectada", luz:"Ligada", consumo:3.2}},
+  cozinha:    {label:"Consumo energético elevado",    status:"atencao",     sensors:{energia:4.8}},
+  quarto1:    {label:"Luz ligada sem presença",       status:"atencao",     sensors:{luz:"Ligada", presenca:"Não detectada"}},
+  escritorio: {label:"Computador em uso (normal)",    status:"normal",      sensors:{energia:1.2, presenca:"Detectada"}},
+  quarto2:    {label:"Confirmar estado normal",       status:"normal",      sensors:{presenca:"Não detectada", temp:22.6}},
+  banheiro:   {label:"Possível vazamento",            status:"critico",     sensors:{vazamento:"Detectado", agua:"280 L/dia", valvula:"Aberta"}},
+  suite:      {label:"Temperatura acima do padrão",   status:"atencao",     sensors:{temp:28.4}},
+  banhosuite: {label:"Luz ligada sem presença",       status:"atencao",     sensors:{luz:"Ligada"}},
+  lavanderia: {label:"Máquina em funcionamento",      status:"equipamento", sensors:{maquina:"Lavando", agua:"12 L/h"}}
+};
+
+function applyEvent(id){
+  const e = events[id];
+  rooms[id].status = e.status;
+  Object.assign(rooms[id].sensors, e.sensors);
+  refreshRoomVisual(id);
+  if(selected===id) renderPanel();
+}
+
+function buildSimButtons(){
+  const grid = document.getElementById('simGrid');
+  grid.innerHTML = Object.entries(events).map(([id,e])=>
+    `<button onclick="applyEvent('${id}')">▶ ${rooms[id].name}: ${e.label}</button>`).join('');
+}
+
+// ---------- CENA THREE.JS ----------
+const canvas = document.getElementById('three-canvas');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05080d);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(6,0,5);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI*0.49;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+dir.position.set(8,14,6);
+scene.add(dir);
+
+const floorMeshes = [];
+const edgeMeshes = {};
+const labelSprites = [];
+
+function makeLabel(text){
+  const cvs = document.createElement('canvas');
+  cvs.width = 256; cvs.height = 64;
+  const ctx = cvs.getContext('2d');
+  ctx.fillStyle = 'rgba(5,8,13,0.0)';
+  ctx.fillRect(0,0,256,64);
+  ctx.font = 'bold 26px -apple-system, sans-serif';
+  ctx.fillStyle = '#e8f0f5';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, 128, 40);
+  const tex = new THREE.CanvasTexture(cvs);
+  const mat = new THREE.SpriteMaterial({map:tex, transparent:true});
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(2.2, 0.55, 1);
+  return sprite;
+}
+
+function buildRooms(){
+  Object.entries(rooms).forEach(([id,r])=>{
+    const cx = r.x + r.w/2, cz = r.z + r.d/2;
+
+    const floorGeo = new THREE.BoxGeometry(r.w-0.06, 0.1, r.d-0.06);
+    const floorMat = new THREE.MeshStandardMaterial({color: colorFor(r.status)});
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.position.set(cx, 0.05, cz);
+    floor.userData.id = id;
+    scene.add(floor);
+    floorMeshes.push(floor);
+
+    const wallGeo = new THREE.BoxGeometry(r.w-0.06, 1.1, r.d-0.06);
+    const wallMat = new THREE.MeshBasicMaterial({color:0x22e6d0, transparent:true, opacity:0.05});
+    const wall = new THREE.Mesh(wallGeo, wallMat);
+    wall.position.set(cx, 0.6, cz);
+    scene.add(wall);
+
+    const edges = new THREE.EdgesGeometry(wallGeo);
+    const edgeMat = new THREE.LineBasicMaterial({color: strokeFor(r.status)});
+    const edgeLines = new THREE.LineSegments(edges, edgeMat);
+    edgeLines.position.copy(wall.position);
+    scene.add(edgeLines);
+    edgeMeshes[id] = {floor, edgeLines, edgeMat, floorMat};
+
+    const label = makeLabel(r.name);
+    label.position.set(cx, 1.5, cz);
+    scene.add(label);
+  });
+
+  // chão geral
+  const baseGeo = new THREE.PlaneGeometry(20,20);
+  const baseMat = new THREE.MeshBasicMaterial({color:0x05080d});
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.rotation.x = -Math.PI/2;
+  base.position.set(6,-0.01,5);
+  scene.add(base);
+}
+buildRooms();
+
+function refreshRoomVisual(id){
+  const r = rooms[id];
+  const e = edgeMeshes[id];
+  e.floorMat.color.setHex(colorFor(r.status));
+  e.edgeMat.color.setHex(strokeFor(r.status));
+  e.edgeLines.material.linewidth = id===selected ? 3 : 1;
+}
+
+function resize(){
+  const box = canvas.parentElement.getBoundingClientRect();
+  renderer.setSize(box.width, box.height);
+  camera.aspect = box.width/box.height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+const camPresets = {
+  geral: ()=>{ camera.position.set(14,10,16); controls.target.set(6,0,5); },
+  topo:  ()=>{ camera.position.set(6,18,5.01); controls.target.set(6,0,5); },
+  iso:   ()=>{ camera.position.set(16,12,-4); controls.target.set(6,0,5); },
+  reset: ()=>{ camera.position.set(14,10,16); controls.target.set(6,0,5); }
+};
+function setCam(name){ camPresets[name](); }
+setCam('geral');
+
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// ---------- SELEÇÃO / RAYCAST ----------
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+function pick(clientX, clientY){
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((clientX-rect.left)/rect.width)*2-1;
+  mouse.y = -((clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(floorMeshes);
+  if(hits.length){ selectRoom(hits[0].object.userData.id); }
+}
+canvas.addEventListener('pointerdown', (e)=>{
+  canvas._downX=e.clientX; canvas._downY=e.clientY;
+});
+canvas.addEventListener('pointerup', (e)=>{
+  if(Math.abs(e.clientX-canvas._downX)<5 && Math.abs(e.clientY-canvas._downY)<5){
+    pick(e.clientX, e.clientY);
+  }
+});
+
+function selectRoom(id){
+  const prev = selected;
+  selected = id;
+  if(prev) refreshRoomVisual(prev);
+  refreshRoomVisual(id);
+  renderPanel();
+}
+
+function badgeClass(s){ return s==="critico"?"critico":s==="atencao"?"atencao":s==="equipamento"?"equipamento":"normal"; }
+function badgeLabel(s){ return s==="critico"?"CRÍTICO":s==="atencao"?"ATENÇÃO":s==="equipamento"?"EM USO":"NORMAL"; }
+
+function renderPanel(){
+  const p = document.getElementById('panel');
+  if(!selected){ p.innerHTML = '<p class="empty">Toque em um ambiente na cena 3D para ver os sensores.</p>'; return; }
+  const r = rooms[selected];
+  const rowsHtml = Object.entries(r.sensors).map(([k,v])=>`<div class="row"><span>${k}</span><span>${v}</span></div>`).join('');
+  p.innerHTML = `<h2>${r.name}</h2><div class="area">${r.area} m² · <span class="badge ${badgeClass(r.status)}">${badgeLabel(r.status)}</span></div>${rowsHtml}`;
+}
+
+// ---------- RESTAURAR (volta todos os 9 ambientes ao baseline) ----------
+function restaurarCasa(){
+  Object.keys(rooms).forEach(id=>{
+    rooms[id].status = defaults[id].status;
+    rooms[id].sensors = JSON.parse(JSON.stringify(defaults[id].sensors));
+    refreshRoomVisual(id);
+  });
+  renderPanel();
+}
+buildSimButtons();
+</script>
+</body>
+</html>
