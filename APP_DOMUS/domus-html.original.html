@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DOMUS AI — Gêmeo Digital</title>
+<style>
+:root{
+  --cyan:#22e6d0; --violet:#7c4dff; --bg:#05080d; --panel:#0c1118;
+  --line:#1c2531; --txt:#e8f0f5; --muted:#8ba0b3;
+  --green:#2ecc71; --yellow:#f5c542; --red:#ff4d4d;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Roboto,sans-serif;height:100%;}
+header{padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+h1{font-size:18px;margin:0 0 2px;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;}
+.sub{color:var(--muted);font-size:12px;margin:0;}
+.toggle{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0;}
+.toggle button{background:transparent;border:none;color:var(--muted);font-weight:700;font-size:13px;padding:9px 16px;}
+.toggle button.active{background:linear-gradient(90deg,var(--cyan),var(--violet));color:#04080c;}
+.wrap{display:flex;flex-direction:column;gap:12px;padding:0 12px 24px;}
+.view-box{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.view-box.d2{overflow-x:auto;padding:10px;}
+.view-box.d3{height:52vh;min-height:320px;}
+#three-canvas{width:100%;height:100%;display:block;touch-action:none;}
+svg{width:100%;height:auto;display:block;min-width:560px;}
+.hidden{display:none !important;}
+.room{cursor:pointer;transition:filter .15s;}
+.room:hover{filter:brightness(1.35);}
+.rlabel{fill:var(--txt);font-size:20px;font-weight:600;pointer-events:none;}
+.rarea{fill:var(--muted);font-size:14px;pointer-events:none;}
+.sensor-dot{stroke:#05080d;stroke-width:1.5;cursor:pointer;}
+.sensor-dot:hover{stroke:#fff;}
+.cams{position:absolute;top:8px;left:8px;display:flex;gap:6px;flex-wrap:wrap;}
+.camBtn{background:rgba(5,8,13,.7);border:1px solid var(--line);color:var(--txt);font-size:11px;padding:6px 9px;border-radius:8px;}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);padding:0 4px;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;}
+.panel h2{margin:0 0 4px;font-size:18px;}
+.panel .area{color:var(--muted);font-size:13px;margin-bottom:12px;}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px;cursor:pointer;}
+.row:hover{color:var(--cyan);}
+.row span:first-child{color:var(--muted);}
+.row.active{color:var(--cyan);}
+.badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.badge.normal{background:rgba(46,204,113,.15);color:var(--green);}
+.badge.atencao{background:rgba(245,197,66,.15);color:var(--yellow);}
+.badge.critico{background:rgba(255,77,77,.15);color:var(--red);}
+.badge.equipamento{background:rgba(34,230,208,.15);color:var(--cyan);}
+.empty{color:var(--muted);font-size:13px;}
+.simGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.simGrid button{font-size:12px;padding:8px 8px;text-align:left;}
+button{background:linear-gradient(90deg,var(--cyan),var(--violet));border:none;color:#04080c;font-weight:700;padding:9px 14px;border-radius:10px;font-size:13px;}
+button.secondary{background:transparent;border:1px solid var(--line);color:var(--txt);}
+.hist{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7;}
+.note{font-size:11px;color:var(--muted);line-height:1.5;padding:0 4px;}
+.scoreTop{display:flex;align-items:center;gap:16px;margin-bottom:12px;}
+.scoreNum{font-size:40px;font-weight:800;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+.scoreNum small{font-size:16px;color:var(--muted);-webkit-text-fill-color:var(--muted);}
+.scoreTitle{font-size:13px;color:var(--muted);}
+.scoreGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.scoreItem{font-size:11px;color:var(--muted);}
+.scoreItem b{display:block;font-size:16px;color:var(--txt);font-weight:700;}
+.bar{height:4px;border-radius:4px;background:var(--line);margin-top:4px;overflow:hidden;}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));}
+.alertCard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.alertCard.critico{border-color:rgba(255,77,77,.4);background:rgba(255,77,77,.06);}
+.alertCard.atencao{border-color:rgba(245,197,66,.35);background:rgba(245,197,66,.05);}
+.alertTop{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;}
+.alertMsg{font-size:12px;color:var(--muted);margin:4px 0 8px;}
+.alertBtns{display:flex;gap:8px;}
+.alertBtns button{font-size:12px;padding:7px 10px;}
+.ruleRow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px;gap:10px;}
+.ruleRow small{display:block;color:var(--muted);font-size:11px;margin-top:2px;}
+.ruleRow input{width:18px;height:18px;accent-color:var(--cyan);flex-shrink:0;}
+.crumb{font-size:11px;color:var(--muted);margin-bottom:8px;cursor:pointer;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>DOMUS AI</h1>
+    <p class="sub">Gêmeo digital · Etapa 6/7 — sensores e dispositivos individuais</p>
+  </div>
+  <div class="toggle">
+    <button id="btn2d" onclick="setMode('2d')">2D</button>
+    <button id="btn3d" onclick="setMode('3d')">3D</button>
+  </div>
+</header>
+<div class="wrap">
+  <div class="view-box d2" id="box2d">
+    <svg id="plant" viewBox="0 0 1200 1000" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="view-box d3 hidden" id="box3d">
+    <canvas id="three-canvas"></canvas>
+    <div class="cams">
+      <button class="camBtn" onclick="setCam('geral')">Geral</button>
+      <button class="camBtn" onclick="setCam('topo')">Superior</button>
+      <button class="camBtn" onclick="setCam('iso')">Isométrica</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--green)"></span>Normal</span>
+    <span><span class="dot" style="background:var(--yellow)"></span>Atenção</span>
+    <span><span class="dot" style="background:var(--red)"></span>Crítico</span>
+    <span><span class="dot" style="background:var(--cyan)"></span>Em uso</span>
+  </div>
+  <div class="panel" id="scoreCard"></div>
+  <div class="panel" id="alertCenter"></div>
+  <div class="panel" id="waterCard"></div>
+  <div class="panel" id="energyCard"></div>
+  <div class="panel" id="securityCard"></div>
+  <div class="panel" id="automationCard"></div>
+  <div class="panel" id="panel">
+    <p class="empty">Toque num ambiente para ver a lista de sensores, ou direto num ponto de sensor (2D/3D) para o detalhe individual.</p>
+  </div>
+  <div class="simGrid" id="simGrid"></div>
+  <button class="secondary" onclick="restaurarCasa()">↺ Restaurar casa (todos os ambientes)</button>
+  <p class="note">Cada ponto na planta agora é um sensor independente (presença, temperatura, energia, água, vazamento, luz, válvula...), com status próprio. Dispositivos (luz, válvula, máquina) têm botão de comando. Tudo ainda no mesmo estado único, refletido em 2D e 3D.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// ============ ESTADO CENTRAL ÚNICO ============
+const rooms = {
+  sala:      {name:"Sala / Jantar", area:24, x:0,    z:0,    w:8,    d:3,    px:{x:0,y:0,w:800,h:300},    status:"normal", sensors:{presenca:"Detectada", temp:24.2, luz:"Ligada", consumo:0.6, porta:"Fechada", janela:"Aberta"}},
+  cozinha:   {name:"Cozinha",       area:12, x:8,    z:0,    w:4,    d:3,    px:{x:800,y:0,w:400,h:300},  status:"normal", sensors:{presenca:"Não detectada", temp:23.5, energia:1.1}},
+  quarto1:   {name:"Quarto 1",      area:12, x:0,    z:3,    w:4.24, d:2.83, px:{x:0,y:300,w:424,h:283},  status:"normal", sensors:{presenca:"Não detectada", temp:22.8, luz:"Desligada"}},
+  escritorio:{name:"Escritório",    area:10, x:4.24, z:3,    w:3.52, d:2.83, px:{x:424,y:300,w:352,h:283},status:"normal", sensors:{presenca:"Detectada", energia:0.9, temp:23.0}},
+  quarto2:   {name:"Quarto 2",      area:12, x:7.76, z:3,    w:4.24, d:2.83, px:{x:776,y:300,w:424,h:283},status:"normal", sensors:{presenca:"Não detectada", temp:22.6, energia:0.3}},
+  banheiro:  {name:"Banheiro",      area:6,  x:0,    z:5.83, w:1.44, d:4.17, px:{x:0,y:583,w:144,h:417},  status:"normal", sensors:{agua:"120 L/dia", vazamento:"Não detectado", valvula:"Aberta"}},
+  suite:     {name:"Suíte",         area:16, x:1.44, z:5.83, w:3.84, d:4.17, px:{x:144,y:583,w:384,h:417},status:"normal", sensors:{presenca:"Detectada", temp:23.8}},
+  banhosuite:{name:"Banho Suíte",   area:5,  x:5.28, z:5.83, w:1.2,  d:4.17, px:{x:528,y:583,w:120,h:417},status:"normal", sensors:{luz:"Desligada", agua:"40 L/dia"}},
+  lavanderia:{name:"Lavanderia",    area:23, x:6.48, z:5.83, w:5.52, d:4.17, px:{x:648,y:583,w:552,h:417},status:"normal", sensors:{maquina:"Parada", agua:"0 L/h"}}
+};
+const defaults = JSON.parse(JSON.stringify(rooms));
+let selectedRoom = null, selectedSensor = null; // selectedSensor = {room,key}
+let mode = '2d';
+
+const events = {
+  sala:       {label:"Ar-condicionado sem presença", status:"atencao",     sensors:{presenca:"Não detectada", luz:"Ligada", consumo:3.2}},
+  cozinha:    {label:"Consumo energético elevado",    status:"atencao",     sensors:{energia:4.8}},
+  quarto1:    {label:"Luz ligada sem presença",       status:"atencao",     sensors:{luz:"Ligada", presenca:"Não detectada"}},
+  escritorio: {label:"Computador em uso (normal)",    status:"normal",      sensors:{energia:1.2, presenca:"Detectada"}},
+  quarto2:    {label:"Confirmar estado normal",       status:"normal",      sensors:{presenca:"Não detectada", temp:22.6}},
+  banheiro:   {label:"Possível vazamento",            status:"critico",     sensors:{vazamento:"Detectado", agua:"280 L/dia", valvula:"Aberta"}},
+  suite:      {label:"Temperatura acima do padrão",   status:"atencao",     sensors:{temp:28.4}},
+  banhosuite: {label:"Luz ligada sem presença",       status:"atencao",     sensors:{luz:"Ligada"}},
+  lavanderia: {label:"Máquina em funcionamento",      status:"equipamento", sensors:{maquina:"Lavando", agua:"12 L/h"}}
+};
+
+// ---- Metadados de sensores: tipo, ícone, se é comandável (dispositivo) ----
+const SENSOR_META = {
+  presenca:  {label:"Presença",     icon:"👤", device:false},
+  temp:      {label:"Temperatura",  icon:"🌡️", device:false},
+  energia:   {label:"Energia",      icon:"⚡", device:false},
+  consumo:   {label:"Consumo (AC)", icon:"⚡", device:false},
+  agua:      {label:"Água",         icon:"💧", device:false},
+  vazamento: {label:"Vazamento",    icon:"🚨", device:false},
+  luz:       {label:"Iluminação",   icon:"💡", device:true, onVal:"Ligada", offVal:"Desligada"},
+  valvula:   {label:"Válvula",      icon:"🔧", device:true, onVal:"Aberta", offVal:"Fechada"},
+  maquina:   {label:"Máq. lavar",   icon:"🌀", device:true, onVal:"Lavando", offVal:"Parada"},
+  porta:     {label:"Porta principal", icon:"🚪", device:true, onVal:"Aberta", offVal:"Fechada", onAction:"Fechar porta", offAction:"Abrir porta"},
+  janela:    {label:"Janela",       icon:"🪟", device:true, onVal:"Aberta", offVal:"Fechada", onAction:"Fechar janela", offAction:"Abrir janela"}
+};
+
+function fillColor(s){ return s==="critico"?"rgba(255,77,77,.28)":s==="atencao"?"rgba(245,197,66,.22)":s==="equipamento"?"rgba(34,230,208,.24)":"rgba(34,230,208,.10)"; }
+function strokeColor(s){ return s==="critico"?"#ff4d4d":s==="atencao"?"#f5c542":s==="equipamento"?"#22e6d0":"#2b3648"; }
+function hex3d(s){ return s==="critico"?0xff4d4d:s==="atencao"?0xf5c542:s==="equipamento"?0x1a5f5a:0x123b3a; }
+function badgeClass(s){ return s==="critico"?"critico":s==="atencao"?"atencao":s==="equipamento"?"equipamento":"normal"; }
+function badgeLabel(s){ return s==="critico"?"CRÍTICO":s==="atencao"?"ATENÇÃO":s==="equipamento"?"EM USO":"NORMAL"; }
+function dotHex(status){ return status==="critico"?"#ff4d4d":status==="atencao"?"#f5c542":status==="equipamento"?"#22e6d0":"#2ecc71"; }
+
+// ---- status individual de cada sensor, independente do status geral do cômodo ----
+function sensorStatus(key, val){
+  if(key==="vazamento") return val==="Detectado" ? "critico" : "normal";
+  if(key==="agua"){ const n = parseFloat(val); return n>=250 ? "critico" : n>=150 ? "atencao" : "normal"; }
+  if(key==="energia" || key==="consumo"){ const n = parseFloat(val); return n>=4 ? "atencao" : "normal"; }
+  if(key==="temp"){ const n = parseFloat(val); return n>=27 ? "atencao" : "normal"; }
+  if(key==="luz") return val==="Ligada" ? "equipamento" : "normal";
+  if(key==="maquina") return val==="Lavando" ? "equipamento" : "normal";
+  if(key==="valvula") return val==="Fechada" ? "atencao" : "normal";
+  if(key==="porta" || key==="janela") return val==="Aberta" ? "atencao" : "normal";
+  return "normal"; // presença é informativa
+}
+
+// ---- ação de resolução por ambiente (o que "atuador" faz ao clicar em Resolver) ----
+const ALERT_ACTIONS = {
+  sala:       {label:"Desligar ar-condicionado", resolve:id=>{ rooms[id].sensors.consumo=defaults[id].sensors.consumo; rooms[id].sensors.luz="Desligada"; rooms[id].sensors.presenca="Detectada"; rooms[id].status="normal"; }},
+  cozinha:    {label:"Analisar consumo",         resolve:id=>{ rooms[id].sensors.energia=defaults[id].sensors.energia; rooms[id].status="normal"; }},
+  quarto1:    {label:"Desligar luz",             resolve:id=>{ rooms[id].sensors.luz="Desligada"; rooms[id].sensors.presenca=defaults[id].sensors.presenca; rooms[id].status="normal"; }},
+  banheiro:   {label:"Fechar válvula",           resolve:id=>{ rooms[id].sensors.valvula="Fechada"; rooms[id].sensors.vazamento="Não detectado"; rooms[id].sensors.agua=defaults[id].sensors.agua; rooms[id].status="normal"; }},
+  suite:      {label:"Ativar climatização",      resolve:id=>{ rooms[id].sensors.temp=defaults[id].sensors.temp; rooms[id].status="normal"; }},
+  banhosuite: {label:"Desligar luz",             resolve:id=>{ rooms[id].sensors.luz="Desligada"; rooms[id].status="normal"; }}
+};
+function resolveAlert(id){
+  ALERT_ACTIONS[id].resolve(id);
+  refreshAll(id);
+}
+
+// ---- DOMUS SCORE ----
+function computeScore(){
+  let energia=100, agua=100, eficiencia=100, seguranca=100, sustentabilidade=100, comportamento=100;
+  Object.values(rooms).forEach(r=>{
+    if(r.status==="critico"){ seguranca-=20; agua-=25; sustentabilidade-=15; eficiencia-=10; }
+    else if(r.status==="atencao"){ eficiencia-=8; comportamento-=10; energia-=8; sustentabilidade-=5; }
+  });
+  const c = v=>Math.max(0,Math.min(100,Math.round(v)));
+  const cats = {Energia:c(energia),Água:c(agua),Eficiência:c(eficiencia),Segurança:c(seguranca),Sustentabilidade:c(sustentabilidade),Comportamento:c(comportamento)};
+  const overall = Math.round(Object.values(cats).reduce((a,b)=>a+b,0)/6);
+  return {overall, cats};
+}
+function renderScore(){
+  const {overall, cats} = computeScore();
+  document.getElementById('scoreCard').innerHTML = `
+    <div class="scoreTop"><div class="scoreNum">${overall}<small>/100</small></div><div class="scoreTitle">DOMUS SCORE<br>atualizado em tempo real</div></div>
+    <div class="scoreGrid">${Object.entries(cats).map(([k,v])=>`<div class="scoreItem">${k}<b>${v}</b><div class="bar"><i style="width:${v}%"></i></div></div>`).join('')}</div>
+  `;
+}
+
+// ---- ALERT CENTER ----
+function computeAlerts(){
+  return Object.entries(rooms)
+    .filter(([id,r])=> (r.status==="critico"||r.status==="atencao") && ALERT_ACTIONS[id])
+    .sort((a,b)=> (a[1].status==="critico"?0:1) - (b[1].status==="critico"?0:1))
+    .map(([id,r])=>({id, room:r.name, status:r.status, msg: events[id].label, action: ALERT_ACTIONS[id].label}));
+}
+function renderAlerts(){
+  const alerts = computeAlerts();
+  const box = document.getElementById('alertCenter');
+  if(!alerts.length){ box.innerHTML = `<h2 style="font-size:15px;margin:0 0 4px;">🔔 Alert Center</h2><p class="empty">Nenhum alerta ativo. Casa operando normalmente.</p>`; return; }
+  box.innerHTML = `<h2 style="font-size:15px;margin:0 0 10px;">🔔 Alert Center (${alerts.length})</h2>` + alerts.map(a=>`
+    <div class="alertCard ${a.status}">
+      <div class="alertTop"><span>${a.status==="critico"?"🔴":"🟡"} ${a.room}</span></div>
+      <div class="alertMsg">${a.msg}</div>
+      <div class="alertBtns">
+        <button onclick="selectRoom('${a.id}')" class="secondary">Ver na planta</button>
+        <button onclick="resolveAlert('${a.id}')">${a.action}</button>
+      </div>
+    </div>`).join('');
+}
+
+// ---- DOMUS WATER ----
+function renderWater(){
+  const waterRooms = ['banheiro','banhosuite']; // sensores medidos em L/dia
+  let hoje=0, media=0;
+  const rowsHtml = waterRooms.map(id=>{
+    const r = rooms[id];
+    const cur = parseFloat(r.sensors.agua), avg = parseFloat(defaults[id].sensors.agua);
+    hoje+=cur; media+=avg;
+    const dev = avg ? Math.round((cur-avg)/avg*100) : 0;
+    const st = sensorStatus('agua', r.sensors.agua);
+    return `<div class="row"><span>${r.name}</span><span>${cur} L/dia <span class="badge ${badgeClass(st)}" style="margin-left:6px;padding:1px 7px;">${dev>=0?'+':''}${dev}%</span></span></div>`;
+  }).join('');
+  const devTotal = media ? Math.round((hoje-media)/media*100) : 0;
+  const anomalies = Object.entries(rooms).filter(([id,r])=>
+    (r.sensors.vazamento && sensorStatus('vazamento',r.sensors.vazamento)==='critico') ||
+    (r.sensors.agua && sensorStatus('agua',r.sensors.agua)!=='normal')
+  ).map(([id,r])=>r.name);
+  document.getElementById('waterCard').innerHTML = `
+    <h2 style="font-size:15px;margin:0 0 4px;">💧 DOMUS WATER</h2>
+    <div class="area">Consumo hoje <b style="color:var(--txt)">${hoje} L</b> · média ${media} L
+      <span class="badge ${devTotal>=100?'critico':devTotal>=20?'atencao':'normal'}" style="margin-left:4px;">${devTotal>=0?'+':''}${devTotal}%</span>
+    </div>
+    ${rowsHtml}
+    <div class="row"><span>Lavanderia (vazão atual)</span><span>${rooms.lavanderia.sensors.agua}</span></div>
+    <div class="row"><span>Válvula principal</span><span class="badge ${rooms.banheiro.sensors.valvula==='Fechada'?'atencao':'normal'}">${rooms.banheiro.sensors.valvula}</span></div>
+    <div class="hist"><strong style="color:var(--txt)">Anomalias / possíveis vazamentos</strong>
+      ${anomalies.length ? anomalies.map(a=>`<div>⚠️ ${a}</div>`).join('') : '<div>Nenhuma anomalia no momento.</div>'}
+    </div>`;
+}
+
+// ---- DOMUS ENERGY ----
+const ENERGY_ROOMS = ['sala','cozinha','escritorio','quarto2']; // têm consumo/energia
+function energyVal(id){ const s = rooms[id].sensors; return s.energia!==undefined ? s.energia : s.consumo; }
+function renderEnergy(){
+  const ranked = ENERGY_ROOMS.map(id=>({id, name:rooms[id].name, v: parseFloat(energyVal(id))})).sort((a,b)=>b.v-a.v);
+  const atual = ranked.reduce((s,r)=>s+r.v,0);
+  const diario = Math.round(atual*24*10)/10;
+  const mensal = Math.round(diario*30);
+  const custo = (mensal*0.85).toFixed(2);
+  const anomalias = ENERGY_ROOMS.filter(id=> sensorStatus(rooms[id].sensors.energia!==undefined?'energia':'consumo', energyVal(id))!=='normal').map(id=>rooms[id].name);
+  document.getElementById('energyCard').innerHTML = `
+    <h2 style="font-size:15px;margin:0 0 4px;">⚡ DOMUS ENERGY</h2>
+    <div class="area">Consumo atual <b style="color:var(--txt)">${atual.toFixed(1)} kWh</b> · diário ~${diario} kWh · mensal ~${mensal} kWh</div>
+    <div class="row"><span>Custo estimado (mês)</span><span>R$ ${custo}</span></div>
+    <div class="hist"><strong style="color:var(--txt)">Equipamentos que mais consomem</strong>
+      ${ranked.map(r=>`<div>${r.name} — ${r.v.toFixed(1)} kWh</div>`).join('')}
+    </div>
+    <div class="row"><span>Horário de pico (padrão)</span><span>18h–21h</span></div>
+    <div class="hist"><strong style="color:var(--txt)">Anomalias</strong>${anomalias.length?anomalias.map(a=>`<div>⚠️ ${a} acima do padrão</div>`).join(''):'<div>Nenhuma anomalia no momento.</div>'}</div>
+  `;
+}
+
+// ---- DOMUS SECURITY ----
+function renderSecurity(){
+  const s = rooms.sala.sensors;
+  const ocupados = Object.values(rooms).filter(r=>r.sensors.presenca==="Detectada").map(r=>r.name);
+  document.getElementById('securityCard').innerHTML = `
+    <h2 style="font-size:15px;margin:0 0 8px;">🛡️ DOMUS SECURITY</h2>
+    <div class="row" onclick="selectSensor('sala','porta')"><span>🚪 Porta principal</span><span class="badge ${badgeClass(sensorStatus('porta',s.porta))}">${s.porta}</span></div>
+    <div class="row" onclick="selectSensor('sala','janela')"><span>🪟 Janela da sala</span><span class="badge ${badgeClass(sensorStatus('janela',s.janela))}">${s.janela}</span></div>
+    <div class="row"><span>Ambientes ocupados</span><span>${ocupados.length ? ocupados.join(', ') : 'Nenhum'}</span></div>
+    <div class="hist"><strong style="color:var(--txt)">Eventos recentes</strong>
+      ${s.janela==="Aberta" ? '<div>🪟 Janela da sala aberta</div>' : ''}
+      ${s.porta==="Aberta" ? '<div>🚪 Porta principal aberta</div>' : ''}
+      ${ocupados.length ? `<div>👤 Presença em: ${ocupados.join(', ')}</div>` : '<div>Nenhuma movimentação recente.</div>'}
+    </div>
+  `;
+}
+
+// ---- DOMUS AUTOMATION ----
+let automationLog = [];
+function logAuto(label, roomId){
+  const time = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  automationLog.unshift({time, msg:`${label} — ${rooms[roomId].name}`});
+  if(automationLog.length>6) automationLog.pop();
+}
+const automationRules = [
+  { id:'valve', enabled:true,
+    label:"Vazamento detectado → fechar válvula",
+    check:()=>Object.keys(rooms).filter(id=>rooms[id].sensors.vazamento==="Detectado"),
+    action:id=>{ rooms[id].sensors.valvula="Fechada"; rooms[id].sensors.vazamento="Não detectado"; rooms[id].sensors.agua=defaults[id].sensors.agua; rooms[id].status="normal"; } },
+  { id:'light', enabled:true,
+    label:"Sem presença por 15 min → desligar luz",
+    check:()=>Object.keys(rooms).filter(id=>rooms[id].sensors.luz==="Ligada" && rooms[id].sensors.presenca==="Não detectada"),
+    action:id=>{ rooms[id].sensors.luz="Desligada"; if(rooms[id].status==="atencao") rooms[id].status="normal"; } },
+  { id:'clima', enabled:true,
+    label:"Temp. > 27°C com presença → climatização",
+    check:()=>Object.keys(rooms).filter(id=>rooms[id].sensors.temp!==undefined && parseFloat(rooms[id].sensors.temp)>27 && rooms[id].sensors.presenca==="Detectada"),
+    action:id=>{ rooms[id].sensors.temp=defaults[id].sensors.temp; if(rooms[id].status==="atencao") rooms[id].status="normal"; } }
+];
+function toggleRule(id){
+  const r = automationRules.find(x=>x.id===id);
+  r.enabled = !r.enabled;
+  refreshAll();
+}
+function simulateAway(){
+  Object.values(rooms).forEach(r=>{ if(r.sensors.presenca!==undefined) r.sensors.presenca="Não detectada"; });
+  logAuto("Saída de casa detectada", "sala");
+  refreshAll();
+}
+function runAutomations(){} // mantido apenas por compatibilidade; a lógica real está em scanAutomations()
+let pendingAuto = {};
+function scanAutomations(){
+  automationRules.forEach(rule=>{
+    if(!rule.enabled) return;
+    rule.check().forEach(id=>{
+      const key = rule.id+':'+id;
+      if(pendingAuto[key]) return;
+      pendingAuto[key] = true;
+      setTimeout(()=>{
+        delete pendingAuto[key];
+        if(rule.check().includes(id)){ // ainda válido? (pode já ter sido resolvido manualmente)
+          rule.action(id);
+          logAuto(rule.label, id);
+          refreshAll();
+        }
+      }, 1800);
+    });
+  });
+}
+function renderAutomation(){
+  document.getElementById('automationCard').innerHTML = `
+    <h2 style="font-size:15px;margin:0 0 4px;">🤖 DOMUS AUTOMATION</h2>
+    ${automationRules.map(r=>`
+      <div class="ruleRow">
+        <span>${r.label}<small>${r.enabled?'Ativa — atua ~2s após detectar o gatilho':'Desativada — eventos ficam como alerta manual'}</small></span>
+        <input type="checkbox" ${r.enabled?'checked':''} onchange="toggleRule('${r.id}')">
+      </div>`).join('')}
+    <button class="secondary" style="margin-top:10px" onclick="simulateAway()">🚪 Simular saída de casa</button>
+    <div class="hist"><strong style="color:var(--txt)">Log de execuções</strong>
+      ${automationLog.length ? automationLog.map(l=>`<div>${l.time} — ${l.msg}</div>`).join('') : '<div>Nenhuma automação executada ainda.</div>'}
+    </div>`;
+}
+
+// ============ FUNÇÃO ÚNICA DE ATUALIZAÇÃO ============
+function refreshAll(id){
+  if(id){ render2DRoom(id); refresh3DRoom(id); }
+  else{ Object.keys(rooms).forEach(r=>{ render2DRoom(r); refresh3DRoom(r); }); }
+  renderPanel();
+  renderScore();
+  renderAlerts();
+  renderWater();
+  renderEnergy();
+  renderSecurity();
+  renderAutomation();
+  scanAutomations();
+}
+function selectRoom(id){
+  selectedRoom = id; selectedSensor = null;
+  refreshAll();
+}
+function selectSensor(room, key){
+  selectedRoom = room; selectedSensor = {room, key};
+  refreshAll();
+}
+function applyEvent(id){
+  const e = events[id];
+  const finalStatus = e.status;
+  // eventos que terminam "normal" (Quarto 2, Escritório) ganham um pulso de análise
+  // antes de assentar, para ficar visível que o DOMUS processou o evento.
+  const pulseStatus = finalStatus==='normal' ? 'equipamento' : finalStatus;
+  rooms[id].status = pulseStatus;
+  Object.assign(rooms[id].sensors, e.sensors);
+  refreshAll(id);
+  if(pulseStatus !== finalStatus){
+    setTimeout(()=>{ rooms[id].status = finalStatus; refreshAll(id); }, 1300);
+  }
+}
+function toggleDevice(room, key){
+  const meta = SENSOR_META[key];
+  const cur = rooms[room].sensors[key];
+  rooms[room].sensors[key] = (cur===meta.onVal) ? meta.offVal : meta.onVal;
+  refreshAll(room);
+}
+function restaurarCasa(){
+  Object.keys(rooms).forEach(id=>{
+    rooms[id].status = defaults[id].status;
+    rooms[id].sensors = JSON.parse(JSON.stringify(defaults[id].sensors));
+  });
+  refreshAll();
+}
+function buildSimButtons(){
+  document.getElementById('simGrid').innerHTML = Object.entries(events).map(([id,e])=>
+    `<button onclick="applyEvent('${id}')">▶ ${rooms[id].name}: ${e.label}</button>`).join('');
+}
+
+// ============ PAINEL ============
+function renderPanel(){
+  const p = document.getElementById('panel');
+  if(!selectedRoom){ p.innerHTML = '<p class="empty">Toque num ambiente para ver a lista de sensores, ou direto num ponto de sensor (2D/3D) para o detalhe individual.</p>'; return; }
+  const r = rooms[selectedRoom];
+
+  if(selectedSensor){
+    const key = selectedSensor.key, meta = SENSOR_META[key];
+    const val = r.sensors[key], st = sensorStatus(key, val);
+    const histMock = ["há 2 min", "há 18 min", "há 41 min"].map((t,i)=>`<div>${t} — leitura registrada</div>`).join('');
+    let cmd = '';
+    if(meta.device) cmd = `<button style="margin-top:12px" onclick="toggleDevice('${selectedRoom}','${key}')">${val===meta.onVal ? (meta.onAction || '⏻ Desligar') : (meta.offAction || '⏻ Ligar')}</button>`;
+    p.innerHTML = `
+      <p class="crumb" onclick="selectRoom('${selectedRoom}')">← ${r.name}</p>
+      <h2>${meta.icon} ${meta.label}</h2>
+      <div class="area">${r.name} · <span class="badge ${badgeClass(st)}">${badgeLabel(st)}</span></div>
+      <div class="row"><span>Leitura atual</span><span>${val}</span></div>
+      <div class="row"><span>Tipo</span><span>${meta.device?'Dispositivo (comandável)':'Sensor'}</span></div>
+      <div class="hist"><strong style="color:var(--txt)">Histórico recente</strong>${histMock}</div>
+      ${cmd}
+    `;
+    return;
+  }
+
+  const rowsHtml = Object.entries(r.sensors).map(([k,v])=>{
+    const meta = SENSOR_META[k], st = sensorStatus(k,v);
+    const active = selectedSensor && selectedSensor.key===k ? 'active' : '';
+    return `<div class="row ${active}" onclick="selectSensor('${selectedRoom}','${k}')"><span>${meta.icon} ${meta.label}</span><span>${v} <span class="badge ${badgeClass(st)}" style="margin-left:6px;padding:1px 7px;">${badgeLabel(st)}</span></span></div>`;
+  }).join('');
+  p.innerHTML = `<h2>${r.name}</h2><div class="area">${r.area} m² · <span class="badge ${badgeClass(r.status)}">${badgeLabel(r.status)}</span></div>${rowsHtml}`;
+}
+
+// ============ MODO 2D / 3D ============
+function setMode(m){
+  mode = m;
+  document.getElementById('box2d').classList.toggle('hidden', m!=='2d');
+  document.getElementById('box3d').classList.toggle('hidden', m!=='3d');
+  document.getElementById('btn2d').classList.toggle('active', m==='2d');
+  document.getElementById('btn3d').classList.toggle('active', m==='3d');
+  if(m==='3d') setTimeout(resize3D, 30);
+}
+
+// ============ PLANTA 2D (SVG) ============
+const svgEls = {};
+function buildPlant2D(){
+  const svg = document.getElementById('plant');
+  svg.innerHTML = '';
+  Object.entries(rooms).forEach(([id,r])=>{
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    rect.setAttribute("x",r.px.x); rect.setAttribute("y",r.px.y);
+    rect.setAttribute("width",r.px.w); rect.setAttribute("height",r.px.h);
+    rect.setAttribute("class","room");
+    rect.onclick = ()=>selectRoom(id);
+    g.appendChild(rect);
+
+    const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+    label.setAttribute("x", r.px.x + r.px.w/2); label.setAttribute("y", r.px.y + 26);
+    label.setAttribute("text-anchor","middle"); label.setAttribute("class","rlabel");
+    label.textContent = r.name.toUpperCase(); label.onclick = ()=>selectRoom(id);
+    g.appendChild(label);
+
+    const area = document.createElementNS("http://www.w3.org/2000/svg","text");
+    area.setAttribute("x", r.px.x + r.px.w/2); area.setAttribute("y", r.px.y + 46);
+    area.setAttribute("text-anchor","middle"); area.setAttribute("class","rarea");
+    area.textContent = r.area + " m²"; area.onclick = ()=>selectRoom(id);
+    g.appendChild(area);
+
+    // um ponto de sensor por chave, distribuído na parte inferior do ambiente
+    const keys = Object.keys(r.sensors);
+    const pad = 26;
+    const usableW = r.px.w - pad*2;
+    svgEls[id] = {sensorDots:{}};
+    keys.forEach((k,i)=>{
+      const cx = r.px.x + pad + (keys.length>1 ? (usableW * i/(keys.length-1)) : usableW/2);
+      const cy = r.px.y + r.px.h - 24;
+      const dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
+      dot.setAttribute("cx",cx); dot.setAttribute("cy",cy); dot.setAttribute("r",9);
+      dot.setAttribute("class","sensor-dot");
+      dot.onclick = (ev)=>{ ev.stopPropagation(); selectSensor(id,k); };
+      g.appendChild(dot);
+      svgEls[id].sensorDots[k] = dot;
+    });
+
+    svg.appendChild(g);
+    svgEls[id].rect = rect;
+  });
+}
+function render2DRoom(id){
+  const r = rooms[id], el = svgEls[id];
+  el.rect.setAttribute("fill", fillColor(r.status));
+  el.rect.setAttribute("stroke", id===selectedRoom && !selectedSensor ? "#22e6d0" : strokeColor(r.status));
+  el.rect.setAttribute("stroke-width", id===selectedRoom && !selectedSensor ? 4 : 2);
+  Object.entries(r.sensors).forEach(([k,v])=>{
+    const dot = el.sensorDots[k];
+    const st = sensorStatus(k,v);
+    dot.setAttribute("fill", dotHex(st));
+    const isSel = selectedSensor && selectedSensor.room===id && selectedSensor.key===k;
+    dot.setAttribute("stroke", isSel ? "#fff" : "#05080d");
+    dot.setAttribute("stroke-width", isSel ? 3 : 1.5);
+  });
+}
+
+// ============ CENA 3D (Three.js) ============
+const canvas = document.getElementById('three-canvas');
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x05080d);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(6,0,5); controls.enableDamping = true; controls.maxPolarAngle = Math.PI*0.49;
+scene.add(new THREE.AmbientLight(0xffffff,0.55));
+const dir = new THREE.DirectionalLight(0xffffff,0.8); dir.position.set(8,14,6); scene.add(dir);
+
+const floorMeshes = []; const sensorMeshes = []; const threeEls = {};
+function buildScene3D(){
+  Object.entries(rooms).forEach(([id,r])=>{
+    const cx = r.x + r.w/2, cz = r.z + r.d/2;
+    const floorGeo = new THREE.BoxGeometry(r.w-0.06, 0.1, r.d-0.06);
+    const floorMat = new THREE.MeshStandardMaterial({color: hex3d(r.status)});
+    const floor = new THREE.Mesh(floorGeo, floorMat); floor.position.set(cx,0.05,cz);
+    floor.userData.id = id; scene.add(floor); floorMeshes.push(floor);
+
+    const wallGeo = new THREE.BoxGeometry(r.w-0.06, 1.1, r.d-0.06);
+    const wall = new THREE.Mesh(wallGeo, new THREE.MeshBasicMaterial({color:0x22e6d0, transparent:true, opacity:0.05}));
+    wall.position.set(cx,0.6,cz); scene.add(wall);
+
+    const edgeMat = new THREE.LineBasicMaterial({color:strokeColor(r.status)==="#2b3648"?0x22e6d0:strokeColor(r.status)});
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(wallGeo), edgeMat);
+    edges.position.copy(wall.position); scene.add(edges);
+
+    const cvs = document.createElement('canvas'); cvs.width=256; cvs.height=64;
+    const ctx = cvs.getContext('2d'); ctx.font='bold 26px -apple-system, sans-serif';
+    ctx.fillStyle='#e8f0f5'; ctx.textAlign='center'; ctx.fillText(r.name,128,40);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cvs), transparent:true}));
+    sprite.scale.set(2.2,0.55,1); sprite.position.set(cx,1.6,cz); scene.add(sprite);
+
+    // esferas de sensor, distribuídas ao longo da largura do ambiente
+    const keys = Object.keys(r.sensors);
+    const mats = {};
+    keys.forEach((k,i)=>{
+      const sx = r.x + 0.3 + (keys.length>1 ? ((r.w-0.6) * i/(keys.length-1)) : (r.w-0.6)/2);
+      const sz = r.z + r.d - 0.3;
+      const mat = new THREE.MeshBasicMaterial({color: dotHex(sensorStatus(k,r.sensors[k]))});
+      const sph = new THREE.Mesh(new THREE.SphereGeometry(0.09,10,10), mat);
+      sph.position.set(sx, 0.3, sz);
+      sph.userData = {room:id, key:k};
+      scene.add(sph); sensorMeshes.push(sph);
+      mats[k] = mat;
+    });
+
+    threeEls[id] = {floorMat, edgeMat, sensorMats: mats};
+  });
+  const base = new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.MeshBasicMaterial({color:0x05080d}));
+  base.rotation.x=-Math.PI/2; base.position.set(6,-0.01,5); scene.add(base);
+}
+function refresh3DRoom(id){
+  const r = rooms[id], el = threeEls[id];
+  el.floorMat.color.setHex(hex3d(r.status));
+  const sc = strokeColor(r.status); el.edgeMat.color.set(sc==="#2b3648"?"#223142":sc);
+  Object.entries(r.sensors).forEach(([k,v])=>{ el.sensorMats[k].color.set(dotHex(sensorStatus(k,v))); });
+}
+function resize3D(){
+  const box = canvas.parentElement.getBoundingClientRect();
+  if(box.width===0) return;
+  renderer.setSize(box.width, box.height);
+  camera.aspect = box.width/box.height; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize3D);
+const camPresets = {
+  geral: ()=>{ camera.position.set(14,10,16); controls.target.set(6,0,5); },
+  topo:  ()=>{ camera.position.set(6,18,5.01); controls.target.set(6,0,5); },
+  iso:   ()=>{ camera.position.set(16,12,-4); controls.target.set(6,0,5); }
+};
+function setCam(name){ camPresets[name](); }
+function animate(){ requestAnimationFrame(animate); controls.update(); renderer.render(scene,camera); }
+
+const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+canvas.addEventListener('pointerdown', e=>{ canvas._dx=e.clientX; canvas._dy=e.clientY; });
+canvas.addEventListener('pointerup', e=>{
+  if(Math.abs(e.clientX-canvas._dx)<5 && Math.abs(e.clientY-canvas._dy)<5){
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, camera);
+    const sHits = raycaster.intersectObjects(sensorMeshes);
+    if(sHits.length){ selectSensor(sHits[0].object.userData.room, sHits[0].object.userData.key); return; }
+    const hits = raycaster.intersectObjects(floorMeshes);
+    if(hits.length) selectRoom(hits[0].object.userData.id);
+  }
+});
+
+// ============ INIT ============
+buildPlant2D();
+buildScene3D();
+refreshAll();
+buildSimButtons();
+setCam('geral');
+resize3D();
+animate();
+setMode('2d');
+</script>
+</body>
+</html>

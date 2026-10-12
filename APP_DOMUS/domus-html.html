@@ -1,0 +1,3378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>DOMUS AI — Aplicativo Residencial Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #22e6d0;
+      --cyan-glow: rgba(34, 230, 208, 0.35);
+      --violet: #8c52ff;
+      --violet-glow: rgba(140, 82, 255, 0.35);
+      --bg: #06090e;
+      --surface: #0c121c;
+      --surface-card: #111a26;
+      --surface-elevated: #162232;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(34, 230, 208, 0.25);
+      --txt: #f0f6fc;
+      --muted: #8b9bb4;
+      --subtle: #4d5c71;
+      --green: #2ecc71;
+      --green-bg: rgba(46, 204, 113, 0.15);
+      --yellow: #f5c542;
+      --yellow-bg: rgba(245, 197, 66, 0.15);
+      --red: #ff4d4d;
+      --red-bg: rgba(255, 77, 77, 0.15);
+      --blue: #3b82f6;
+      --nav-height: 72px;
+      --header-height: 64px;
+      --app-max-width: 720px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px) + 20px);
+    }
+
+    /* App Header */
+    header.app-header {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6, 9, 14, 0.90);
+      border-bottom: 1px solid var(--line);
+      padding: env(safe-area-inset-top, 10px) 16px 12px;
+    }
+
+    .header-container {
+      max-width: var(--app-max-width);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--cyan-glow);
+      font-size: 19px;
+      flex-shrink: 0;
+    }
+
+    .brand-info h1 {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #fff, var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.15;
+    }
+
+    .brand-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      background: rgba(46, 204, 113, 0.12);
+      color: var(--green);
+      font-weight: 700;
+      border: 1px solid rgba(46, 204, 113, 0.25);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.8);
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all .2s;
+    }
+
+    .btn-icon:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    /* Tab Screens Wrapper */
+    .tab-screen {
+      display: none;
+      padding: 16px 14px 24px;
+      animation: fadeIn .25s ease-out;
+      max-width: var(--app-max-width);
+      margin: 0 auto;
+    }
+
+    .tab-screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* View Mode Toggles (2D / 3D) */
+    .view-switch {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 14px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .view-switch button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .view-switch button.active {
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      color: #06090e;
+      font-weight: 800;
+      box-shadow: 0 2px 12px var(--cyan-glow);
+    }
+
+    /* 2D & 3D View Boxes */
+    .view-box {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .view-box.d2 {
+      overflow-x: auto;
+      padding: 8px;
+      border: 1px solid rgba(34, 230, 208, 0.2);
+    }
+
+    .view-box.d3 {
+      height: 50vh;
+      min-height: 330px;
+    }
+
+    #three-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    svg#plant {
+      width: 100%;
+      height: auto;
+      display: block;
+      min-width: 540px;
+      border-radius: 12px;
+    }
+
+    .cams {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .camBtn {
+      background: rgba(6, 9, 14, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .camBtn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 2px 6px 14px;
+      align-items: center;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Panels & Cards */
+    .panel {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      transition: border-color .2s;
+    }
+
+    .panel:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--txt);
+    }
+
+    .badge {
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge.normal {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .badge.atencao {
+      background: var(--yellow-bg);
+      color: var(--yellow);
+    }
+
+    .badge.critico {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .badge.equipamento {
+      background: rgba(34, 230, 208, .15);
+      color: var(--cyan);
+    }
+
+    /* Score Card */
+    .score-box {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 6px 0 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
+    .score-num-wrapper {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .scoreNum {
+      font-size: 46px;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1;
+    }
+
+    .scoreNum small {
+      font-size: 16px;
+      color: var(--muted);
+      -webkit-text-fill-color: var(--muted);
+      margin-left: 2px;
+    }
+
+    .scoreMeta h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .scoreMeta p {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .scoreGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media(max-width: 480px) {
+      .scoreGrid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .scoreItem {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .scoreItem b {
+      display: block;
+      font-size: 16px;
+      color: var(--txt);
+      font-weight: 700;
+      margin: 2px 0 4px;
+    }
+
+    .bar {
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      transition: width .4s;
+    }
+
+    /* Alert Center */
+    .alertCard {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      transition: transform .15s;
+    }
+
+    .alertCard:last-child {
+      margin-bottom: 0;
+    }
+
+    .alertCard.critico {
+      border-color: rgba(255, 77, 77, .45);
+      background: rgba(255, 77, 77, .08);
+    }
+
+    .alertCard.atencao {
+      border-color: rgba(245, 197, 66, .4);
+      background: rgba(245, 197, 66, .07);
+    }
+
+    .alertTop {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .alertMsg {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 6px 0 10px;
+    }
+
+    .alertBtns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .alertBtns button {
+      font-size: 12px;
+      padding: 7px 12px;
+    }
+
+    /* General Row */
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .row:hover {
+      color: var(--cyan);
+    }
+
+    .row span:first-child {
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .row.active {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    /* Buttons */
+    button {
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      border: none;
+      color: #06090e;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 4px 15px var(--cyan-glow);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.secondary {
+      background: var(--surface-elevated);
+      border: 1px solid var(--line);
+      color: var(--txt);
+    }
+
+    button.secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: none;
+    }
+
+    button.danger {
+      background: rgba(255, 77, 77, 0.18);
+      border: 1px solid rgba(255, 77, 77, 0.4);
+      color: var(--red);
+    }
+
+    button.danger:hover {
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4);
+    }
+
+    /* Automation Rules */
+    .ruleRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      gap: 12px;
+    }
+
+    .ruleRow:last-child {
+      border-bottom: none;
+    }
+
+    .ruleRow small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--surface-elevated);
+      border: 1px solid var(--line);
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: var(--muted);
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+      background-color: #06090e;
+    }
+
+    /* Hist & Note */
+    .hist {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.7;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px dashed var(--line);
+    }
+
+    /* Empty State */
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    /* Bottom Navigation Bar */
+    nav.app-navbar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: var(--app-max-width);
+      height: var(--nav-height);
+      background: rgba(10, 15, 23, 0.94);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-top: 1px solid var(--line);
+      border-radius: 22px 22px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 10px env(safe-area-inset-bottom, 10px);
+      z-index: 100;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all .2s;
+      border-radius: 12px;
+      min-width: 58px;
+    }
+
+    .nav-item .nav-icon {
+      font-size: 20px;
+      transition: transform .2s, color .2s;
+    }
+
+    .nav-item.active {
+      color: var(--cyan);
+    }
+
+    .nav-item.active .nav-icon {
+      transform: translateY(-2px) scale(1.1);
+      filter: drop-shadow(0 0 8px var(--cyan-glow));
+    }
+
+    .nav-voice-btn {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 20px var(--cyan-glow), 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #06090e;
+      font-size: 22px;
+      cursor: pointer;
+      margin-top: -18px;
+      transition: all .25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .nav-voice-btn:hover,
+    .nav-voice-btn:active {
+      transform: scale(1.12);
+      box-shadow: 0 0 28px rgba(34, 230, 208, 0.65);
+    }
+
+    .nav-voice-btn.recording {
+      background: linear-gradient(135deg, #ff4d4d, #f5c542);
+      animation: pulse-ring 1.5s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 16px rgba(255, 77, 77, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0);
+      }
+    }
+
+    /* ========================================================
+   TELAS ESPECÍFICAS
+======================================================== */
+
+    /* TELA 2: CONSUMO & HISTÓRICO */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .metric-card {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .metric-card.energy {
+      border-top: 3px solid var(--cyan);
+    }
+
+    .metric-card.water {
+      border-top: 3px solid #3b82f6;
+    }
+
+    .metric-title {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .metric-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--txt);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .metric-sub span {
+      font-weight: 700;
+    }
+
+    /* Timeline de Histórico */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 24px;
+      font-size: 12px;
+    }
+
+    .timeline-item:before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 5px;
+      bottom: -15px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline-item:last-child:before {
+      display: none;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 2px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+    }
+
+    .timeline-dot.alert {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red-bg);
+    }
+
+    .timeline-dot.auto {
+      background: var(--violet);
+      box-shadow: 0 0 8px var(--violet-glow);
+    }
+
+    .timeline-time {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .timeline-msg {
+      font-weight: 600;
+      color: var(--txt);
+      margin-top: 1px;
+    }
+
+    .timeline-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    /* TELA 3: CÂMERAS DE SEGURANÇA */
+    .cctv-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media(max-width: 580px) {
+      .cctv-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cctv-card {
+      background: #000;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+      aspect-ratio: 16/9;
+      cursor: pointer;
+      transition: transform .2s, border-color .2s;
+    }
+
+    .cctv-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .cctv-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0.85;
+    }
+
+    .cctv-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, transparent 40%, transparent 60%, rgba(0, 0, 0, 0.85) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 12px;
+      pointer-events: none;
+    }
+
+    .cctv-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cctv-tag {
+      background: rgba(255, 77, 77, 0.85);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cctv-tag .rec-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #fff;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .cctv-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.85);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .cctv-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .cctv-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .cctv-status {
+      font-size: 10px;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .cctv-hud-box {
+      position: absolute;
+      border: 1px dashed rgba(34, 230, 208, 0.6);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .cctv-hud-label {
+      position: absolute;
+      top: -14px;
+      left: 0;
+      font-size: 8px;
+      background: rgba(34, 230, 208, 0.8);
+      color: #000;
+      padding: 1px 4px;
+      font-weight: 700;
+      border-radius: 2px;
+    }
+
+    /* Modal CCTV Zoom */
+    .cctv-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 200;
+      backdrop-filter: blur(15px);
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cctv-modal.active {
+      display: flex;
+    }
+
+    .cctv-modal-content {
+      width: 100%;
+      max-width: 800px;
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .cctv-modal-header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cctv-modal-img {
+      width: 100%;
+      max-height: 460px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cctv-modal-footer {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface-card);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* TELA 4: AÇÕES GLOBAIS (MASTER CONTROLS) */
+    .scenes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .scene-btn {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: left;
+    }
+
+    .scene-btn:hover {
+      border-color: var(--cyan);
+      background: var(--surface-elevated);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .scene-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .scene-icon.sleep {
+      background: rgba(140, 82, 255, 0.15);
+      color: var(--violet);
+    }
+
+    .scene-icon.away {
+      background: rgba(245, 197, 66, 0.15);
+      color: var(--yellow);
+    }
+
+    .scene-icon.cinema {
+      background: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
+    }
+
+    .scene-icon.secure {
+      background: rgba(46, 204, 113, 0.15);
+      color: var(--green);
+    }
+
+    .scene-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--txt);
+    }
+
+    .scene-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .master-action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .master-action-row:last-child {
+      border-bottom: none;
+    }
+
+    .master-meta h4 {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .master-meta p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .master-btn-pair {
+      display: flex;
+      gap: 8px;
+    }
+
+    .master-btn-pair button {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    /* Voice Assistant Sheet */
+    .voice-sheet {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: var(--app-max-width);
+      background: rgba(12, 18, 28, 0.96);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-top: 1px solid var(--line-strong);
+      border-radius: 28px 28px 0 0;
+      padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 10px));
+      z-index: 150;
+      box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.8);
+      animation: slideUp .3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+    }
+
+    .voice-sheet.active {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translate(-50%, 100%);
+      }
+
+      to {
+        transform: translate(-50%, 0);
+      }
+    }
+
+    .voice-orb {
+      width: 78px;
+      height: 78px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--cyan) 0%, var(--violet) 70%, transparent 100%);
+      box-shadow: 0 0 35px var(--cyan-glow), inset 0 0 15px rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      cursor: pointer;
+      animation: orb-breathe 3s infinite ease-in-out;
+    }
+
+    .voice-orb.listening {
+      animation: orb-pulse .8s infinite alternate ease-in-out;
+      background: radial-gradient(circle, #ff4d4d 0%, var(--yellow) 70%, transparent 100%);
+      box-shadow: 0 0 45px rgba(255, 77, 77, 0.6);
+    }
+
+    @keyframes orb-breathe {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+
+      50% {
+        transform: scale(1.08);
+        filter: brightness(1.25);
+      }
+    }
+
+    @keyframes orb-pulse {
+      from {
+        transform: scale(0.95);
+        box-shadow: 0 0 25px rgba(255, 77, 77, 0.4);
+      }
+
+      to {
+        transform: scale(1.18);
+        box-shadow: 0 0 50px rgba(255, 77, 77, 0.85);
+      }
+    }
+
+    .voice-prompt {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--txt);
+    }
+
+    .mic-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      margin-bottom: 8px;
+    }
+
+    .audio-waves {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      height: 24px;
+      margin: 4px 0 10px;
+    }
+
+    .wave-bar {
+      width: 4px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 4px;
+      transition: height 0.08s ease, background-color 0.2s;
+    }
+
+    .audio-waves.recording .wave-bar {
+      background: #ff4d4d;
+    }
+
+    .voice-transcript {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 22px;
+      margin-bottom: 14px;
+      font-style: italic;
+      padding: 0 10px;
+    }
+
+    .voice-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .voice-chip {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .voice-chip:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .voice-input-row {
+      display: flex;
+      gap: 8px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .voice-input-row input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: var(--txt);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .voice-input-row input:focus {
+      border-color: var(--cyan);
+    }
+
+    /* Demo / Sandbox Drawer (Discreto para Apresentação na Faculdade) */
+    .sandbox-drawer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 180;
+      justify-content: flex-end;
+    }
+
+    .sandbox-drawer.active {
+      display: flex;
+    }
+
+    .sandbox-panel {
+      width: 100%;
+      max-width: 420px;
+      height: 100%;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      padding: 24px 20px;
+      overflow-y: auto;
+      animation: slideLeft .3s ease-out;
+    }
+
+    @keyframes slideLeft {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .sandbox-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    .simGrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .simGrid button {
+      font-size: 12px;
+      padding: 10px 12px;
+      text-align: left;
+      justify-content: flex-start;
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      color: var(--txt);
+    }
+
+    .simGrid button:hover {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      top: calc(var(--header-height) + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 250;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      width: 90%;
+      max-width: 380px;
+    }
+
+    .toast {
+      background: rgba(17, 26, 38, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--cyan);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px var(--cyan-glow);
+      color: var(--txt);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn .3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* SVG Plant Styling */
+    .room-group {
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .room-group:hover .room-bg {
+      filter: brightness(1.2);
+    }
+
+    .room-bg {
+      transition: all .2s;
+      rx: 14px;
+      ry: 14px;
+    }
+
+    .rlabel {
+      fill: #fff;
+      font-size: 19px;
+      font-weight: 700;
+      pointer-events: none;
+      letter-spacing: -0.2px;
+    }
+
+    .rarea {
+      fill: var(--muted);
+      font-size: 13px;
+      pointer-events: none;
+      font-weight: 500;
+    }
+
+    .rcam-tag {
+      fill: var(--cyan);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sensor-dot {
+      stroke: #06090e;
+      stroke-width: 2;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+
+    .sensor-dot:hover {
+      stroke: #fff;
+      transform: scale(1.3);
+      transform-origin: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header Global do App -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-icon">🏠</div>
+        <div class="brand-info">
+          <h1>DOMUS AI</h1>
+          <div class="brand-meta">
+            <span class="status-pill"><span class="pulse-dot"></span> Online</span>
+            <span>·</span>
+            <span id="headerClock">--:--</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- Botão de Modo Demonstração / Sandbox (Discreto para a faculdade) -->
+        <button class="btn-icon" onclick="toggleSandbox()" title="Laboratório da IA (Simulações)">🧪</button>
+        <button class="btn-icon" onclick="openVoiceAssistant()" title="Comando de Voz">🎙️</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notificações Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========================================================
+     ABA 1: INÍCIO (GÊMEO DIGITAL 2D / 3D & CONTROLES)
+======================================================== -->
+  <section class="tab-screen active" id="tabHome">
+    <!-- Alternador 2D / 3D -->
+    <div class="view-switch">
+      <button id="btn2d" class="active" onclick="setMode('2d')">
+        <span>📐</span> Planta 2D com Câmeras
+      </button>
+      <button id="btn3d" onclick="setMode('3d')">
+        <span>🧊</span> Gêmeo 3D Interativo
+      </button>
+    </div>
+
+    <!-- Planta 2D SVG com Câmeras Fixas -->
+    <div class="view-box d2" id="box2d">
+      <svg id="plant" viewBox="0 0 1200 1000" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="pat-cctv-sala" patternUnits="userSpaceOnUse" width="800" height="300">
+            <image href="assets/cctv_sala.png" x="0" y="0" width="800" height="300" preserveAspectRatio="xMidYMid slice"
+              opacity="0.32" />
+          </pattern>
+          <pattern id="pat-cctv-cozinha" patternUnits="userSpaceOnUse" width="400" height="300">
+            <image href="assets/cctv_cozinha.png" x="0" y="0" width="400" height="300"
+              preserveAspectRatio="xMidYMid slice" opacity="0.32" />
+          </pattern>
+          <pattern id="pat-cctv-quarto1" patternUnits="userSpaceOnUse" width="424" height="283">
+            <image href="assets/cctv_quarto.png" x="0" y="0" width="424" height="283"
+              preserveAspectRatio="xMidYMid slice" opacity="0.32" />
+          </pattern>
+          <pattern id="pat-cctv-escritorio" patternUnits="userSpaceOnUse" width="352" height="283">
+            <image href="assets/cctv_escritorio.png" x="0" y="0" width="352" height="283"
+              preserveAspectRatio="xMidYMid slice" opacity="0.32" />
+          </pattern>
+          <pattern id="pat-cctv-quarto2" patternUnits="userSpaceOnUse" width="424" height="283">
+            <image href="assets/cctv_quarto2.png" x="0" y="0" width="424" height="283"
+              preserveAspectRatio="xMidYMid slice" opacity="0.32" />
+          </pattern>
+          <pattern id="pat-cctv-suite" patternUnits="userSpaceOnUse" width="384" height="417">
+            <image href="assets/cctv_suite.png" x="0" y="0" width="384" height="417"
+              preserveAspectRatio="xMidYMid slice" opacity="0.32" />
+          </pattern>
+          <pattern id="pat-cctv-banheiro" patternUnits="userSpaceOnUse" width="144" height="417">
+            <image href="assets/cctv_banheiro.png" x="0" y="0" width="144" height="417"
+              preserveAspectRatio="xMidYMid slice" opacity="0.30" />
+          </pattern>
+          <pattern id="pat-cctv-banhosuite" patternUnits="userSpaceOnUse" width="120" height="417">
+            <image href="assets/cctv_banhosuite.png" x="0" y="0" width="120" height="417"
+              preserveAspectRatio="xMidYMid slice" opacity="0.30" />
+          </pattern>
+          <pattern id="pat-cctv-lavanderia" patternUnits="userSpaceOnUse" width="552" height="417">
+            <image href="assets/cctv_lavanderia.png" x="0" y="0" width="552" height="417"
+              preserveAspectRatio="xMidYMid slice" opacity="0.32" />
+          </pattern>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Vista 3D Three.js -->
+    <div class="view-box d3 hidden" id="box3d" style="display:none;">
+      <canvas id="three-canvas"></canvas>
+      <div class="cams">
+        <button class="camBtn" onclick="setCam('geral')">Geral</button>
+        <button class="camBtn" onclick="setCam('topo')">Superior</button>
+        <button class="camBtn" onclick="setCam('iso')">Isométrica</button>
+      </div>
+    </div>
+
+    <!-- Legenda de Status -->
+    <div class="legend">
+      <span><span class="dot" style="background:var(--green)"></span> Normal</span>
+      <span><span class="dot" style="background:var(--yellow)"></span> Atenção</span>
+      <span><span class="dot" style="background:var(--red)"></span> Crítico</span>
+      <span><span class="dot" style="background:var(--cyan)"></span> Em uso</span>
+      <span style="margin-left:auto;color:var(--muted);font-size:10px;">Toque no cômodo para controlar</span>
+    </div>
+
+    <!-- Painel de Detalhes do Cômodo / Sensor Selecionado -->
+    <div class="panel" id="panel">
+      <p class="empty">Selecione um cômodo na planta ou toque diretamente num sensor para gerenciar seus dispositivos.
+      </p>
+    </div>
+
+    <!-- DOMUS Score Resumo -->
+    <div class="panel" id="scoreCard"></div>
+
+    <!-- Alert Center -->
+    <div class="panel" id="alertCenter"></div>
+
+    <!-- DOMUS Security -->
+    <div class="panel" id="securityCard"></div>
+
+    <!-- DOMUS Automation -->
+    <div class="panel" id="automationCard"></div>
+  </section>
+
+  <!-- ========================================================
+     ABA 2: CONSUMO & HISTÓRICO (ENERGIA + ÁGUA + TIMELINE)
+======================================================== -->
+  <section class="tab-screen" id="tabEnergy">
+    <div class="panel-header">
+      <h2 class="panel-title"><span>📊</span> Gestão de Consumo & Histórico</h2>
+      <span class="badge normal">Tempo Real</span>
+    </div>
+
+    <!-- Cards de Métricas Principais -->
+    <div class="metrics-row">
+      <div class="metric-card energy">
+        <div class="metric-title">⚡ Energia Atual</div>
+        <div class="metric-val" id="metricEnergyTotal">0.0 kWh</div>
+        <div class="metric-sub">Est. mês: <span id="metricEnergyCost">R$ 0,00</span></div>
+      </div>
+      <div class="metric-card water">
+        <div class="metric-title">💧 Água Hoje</div>
+        <div class="metric-val" id="metricWaterTotal">0 L</div>
+        <div class="metric-sub">Válvula: <span id="metricValveState">Aberta</span></div>
+      </div>
+    </div>
+
+    <!-- Painel DOMUS ENERGY Detalhado -->
+    <div class="panel" id="energyCard"></div>
+
+    <!-- Painel DOMUS WATER Detalhado -->
+    <div class="panel" id="waterCard"></div>
+
+    <!-- Timeline de Histórico & Telemetria -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><span>🕒</span> Histórico de Atividades & Auditoria</h3>
+        <button class="secondary" style="font-size:11px;padding:4px 8px;" onclick="clearHistory()">Limpar</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Registro em tempo real de comandos, alertas e
+        ações tomadas pela IA.</p>
+      <div class="timeline" id="activityTimeline"></div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+     ABA 3: CÂMERAS DE SEGURANÇA (CENTRAL CFTV)
+======================================================== -->
+  <section class="tab-screen" id="tabCameras">
+    <div class="panel-header">
+      <h2 class="panel-title"><span>📹</span> Central de Câmeras de Segurança</h2>
+      <span class="badge equipamento">6 Câmeras Ativas</span>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Monitoramento em alta definição com detecção
+      inteligente de presença e anomalias.</p>
+
+    <div class="cctv-grid" id="cctvGrid">
+      <!-- Câmera 1: Sala -->
+      <div class="cctv-card"
+        onclick="openCctvModal('Sala de Estar', 'assets/cctv_sala.png', 'CAM-01', 'Presença Detectada')">
+        <img src="assets/cctv_sala.png" alt="Sala de Estar">
+        <div class="cctv-overlay">
+          <div class="cctv-top">
+            <span class="cctv-tag"><span class="rec-dot"></span> REC · CAM-01</span>
+            <span class="cctv-time live-clock">--:--:--</span>
+          </div>
+          <div class="cctv-hud-box" style="top:35%;left:25%;width:28%;height:45%;">
+            <span class="cctv-hud-label">PESSOA 98%</span>
+          </div>
+          <div class="cctv-bottom">
+            <div>
+              <div class="cctv-name">Sala de Estar / Jantar</div>
+              <div class="cctv-status">● IA: Monitoramento Ativo</div>
+            </div>
+            <span style="font-size:14px;">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Câmera 2: Cozinha -->
+      <div class="cctv-card"
+        onclick="openCctvModal('Cozinha Gourmet', 'assets/cctv_cozinha.png', 'CAM-02', 'Área Livre')">
+        <img src="assets/cctv_cozinha.png" alt="Cozinha">
+        <div class="cctv-overlay">
+          <div class="cctv-top">
+            <span class="cctv-tag"><span class="rec-dot"></span> REC · CAM-02</span>
+            <span class="cctv-time live-clock">--:--:--</span>
+          </div>
+          <div class="cctv-bottom">
+            <div>
+              <div class="cctv-name">Cozinha Gourmet</div>
+              <div class="cctv-status">● IA: Sensores Térmicos OK</div>
+            </div>
+            <span style="font-size:14px;">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Câmera 3: Escritório -->
+      <div class="cctv-card"
+        onclick="openCctvModal('Home Office', 'assets/cctv_escritorio.png', 'CAM-03', 'Equipamento Ligado')">
+        <img src="assets/cctv_escritorio.png" alt="Escritório">
+        <div class="cctv-overlay">
+          <div class="cctv-top">
+            <span class="cctv-tag"><span class="rec-dot"></span> REC · CAM-03</span>
+            <span class="cctv-time live-clock">--:--:--</span>
+          </div>
+          <div class="cctv-hud-box" style="top:42%;left:40%;width:35%;height:40%;">
+            <span class="cctv-hud-label">ESTAÇÃO ATIVA</span>
+          </div>
+          <div class="cctv-bottom">
+            <div>
+              <div class="cctv-name">Escritório / Home Office</div>
+              <div class="cctv-status">● IA: Presença em Mesa</div>
+            </div>
+            <span style="font-size:14px;">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Câmera 4: Quarto 1 -->
+      <div class="cctv-card"
+        onclick="openCctvModal('Quarto 1', 'assets/cctv_quarto.png', 'CAM-04', 'Sem Movimentação')">
+        <img src="assets/cctv_quarto.png" alt="Quarto 1">
+        <div class="cctv-overlay">
+          <div class="cctv-top">
+            <span class="cctv-tag"><span class="rec-dot"></span> REC · CAM-04</span>
+            <span class="cctv-time live-clock">--:--:--</span>
+          </div>
+          <div class="cctv-bottom">
+            <div>
+              <div class="cctv-name">Quarto 1</div>
+              <div class="cctv-status">● IA: Modo Silencioso</div>
+            </div>
+            <span style="font-size:14px;">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Câmera 5: Suíte Master -->
+      <div class="cctv-card"
+        onclick="openCctvModal('Suíte Master', 'assets/cctv_quarto.png', 'CAM-05', 'Conforto Térmico')">
+        <img src="assets/cctv_quarto.png" alt="Suíte Master">
+        <div class="cctv-overlay">
+          <div class="cctv-top">
+            <span class="cctv-tag"><span class="rec-dot"></span> REC · CAM-05</span>
+            <span class="cctv-time live-clock">--:--:--</span>
+          </div>
+          <div class="cctv-bottom">
+            <div>
+              <div class="cctv-name">Suíte Master</div>
+              <div class="cctv-status">● IA: Monitoramento Noturno</div>
+            </div>
+            <span style="font-size:14px;">🔍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Câmera 6: Entrada Principal / Hall -->
+      <div class="cctv-card"
+        onclick="openCctvModal('Entrada Principal', 'assets/cctv_sala.png', 'CAM-06', 'Porta Trancada')">
+        <img src="assets/cctv_sala.png" alt="Entrada">
+        <div class="cctv-overlay">
+          <div class="cctv-top">
+            <span class="cctv-tag"><span class="rec-dot"></span> REC · CAM-06</span>
+            <span class="cctv-time live-clock">--:--:--</span>
+          </div>
+          <div class="cctv-bottom">
+            <div>
+              <div class="cctv-name">Porta Principal & Acessos</div>
+              <div class="cctv-status">● IA: Trava Biométrica OK</div>
+            </div>
+            <span style="font-size:14px;">🔍</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Ampliar Câmera -->
+  <div class="cctv-modal" id="cctvModal" onclick="closeCctvModal(event)">
+    <div class="cctv-modal-content" onclick="event.stopPropagation()">
+      <div class="cctv-modal-header">
+        <div>
+          <h3 id="modalCamTitle" style="font-size:16px;">Câmera Ao Vivo</h3>
+          <p id="modalCamSub" style="font-size:11px;color:var(--muted);">CAM-01 · Transmissão Criptografada</p>
+        </div>
+        <button class="secondary" style="padding:4px 10px;font-size:12px;" onclick="closeCctvModal()">✕ Fechar</button>
+      </div>
+      <img id="modalCamImg" class="cctv-modal-img" src="assets/cctv_sala.png" alt="Câmera">
+      <div class="cctv-modal-footer">
+        <div style="font-size:12px;color:var(--cyan);font-weight:600;" id="modalCamStatus">● Status: Monitorando</div>
+        <div style="display:flex;gap:8px;">
+          <button class="secondary" onclick="snapshotCamera()">📸 Capturar Foto</button>
+          <button onclick="triggerVoiceSpeak('Interfone conectado com o ambiente.')">🎙️ Falar pelo Interfone</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+     ABA 4: AÇÕES GLOBAIS (MASTER CONTROLS)
+======================================================== -->
+  <section class="tab-screen" id="tabActions">
+    <div class="panel-header">
+      <h2 class="panel-title"><span>🎛️</span> Ações Globais & Automação Master</h2>
+      <span class="badge normal">Controle Total</span>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Comande toda a residência simultaneamente com um
+      único toque. Conectado em tempo real com todos os cômodos.</p>
+
+    <!-- Cenas Rápidas Inteligentes -->
+    <div class="scenes-grid">
+      <div class="scene-btn" onclick="executeScene('sleep')">
+        <div class="scene-icon sleep">🌙</div>
+        <div class="scene-title">Modo Dormir</div>
+        <div class="scene-desc">Apaga todas as luzes, tranca portas e janelas, ajusta climatização suave.</div>
+      </div>
+      <div class="scene-btn" onclick="executeScene('away')">
+        <div class="scene-icon away">🚪</div>
+        <div class="scene-title">Modo Fora de Casa</div>
+        <div class="scene-desc">Desliga iluminação e ar, tranca acessos e ativa sentinela da IA.</div>
+      </div>
+      <div class="scene-btn" onclick="executeScene('cinema')">
+        <div class="scene-icon cinema">🎬</div>
+        <div class="scene-title">Modo Cinema</div>
+        <div class="scene-desc">Fecha janelas, deixa apenas luz da sala suave e clima a 22°C.</div>
+      </div>
+      <div class="scene-btn" onclick="executeScene('security')">
+        <div class="scene-icon secure">🛡️</div>
+        <div class="scene-title">Segurança Máxima</div>
+        <div class="scene-desc">Tranca todas as portas e janelas, checa vazamentos e monitora presença.</div>
+      </div>
+    </div>
+
+    <!-- Controles Globais por Categoria -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><span>💡</span> Iluminação Residencial Global</h3>
+      </div>
+      <div class="master-action-row">
+        <div class="master-meta">
+          <h4>Todas as Lâmpadas</h4>
+          <p>Controla iluminação de todos os ambientes</p>
+        </div>
+        <div class="master-btn-pair">
+          <button class="secondary" onclick="masterControlLights(false)">⏻ Apagar Todas</button>
+          <button onclick="masterControlLights(true)">💡 Ligar Todas</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><span>🔒</span> Fechaduras, Portas & Janelas</h3>
+      </div>
+      <div class="master-action-row">
+        <div class="master-meta">
+          <h4>Acessos & Portas</h4>
+          <p>Porta principal e janelas da residência</p>
+        </div>
+        <div class="master-btn-pair">
+          <button class="secondary" onclick="masterControlAccess('abrir')">Abrir Acessos</button>
+          <button onclick="masterControlAccess('fechar')">🔒 Trancar Tudo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><span>❄️</span> Climatização Geral (Ar-Condicionado)</h3>
+      </div>
+      <div class="master-action-row">
+        <div class="master-meta">
+          <h4>Ar-Condicionado & Clima</h4>
+          <p>Ajuste de temperatura para consumo eficiente</p>
+        </div>
+        <div class="master-btn-pair">
+          <button class="secondary" onclick="masterControlClimate('desligar')">⏻ Desligar Ar</button>
+          <button onclick="masterControlClimate('conforto')">❄️ Modo Conforto (23°)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><span>💧</span> Sistema Hidráulico & Válvula Geral</h3>
+      </div>
+      <div class="master-action-row">
+        <div class="master-meta">
+          <h4>Válvula de Água Principal</h4>
+          <p>Corte de emergência ou fluxo padrão</p>
+        </div>
+        <div class="master-btn-pair">
+          <button class="danger" onclick="masterControlWater('fechar')">🚨 Cortar Água</button>
+          <button class="secondary" onclick="masterControlWater('abrir')">Abrir Válvula</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+     ASSISTENTE DE VOZ DOMUS AI (SHEET INFERIOR)
+======================================================== -->
+  <div class="voice-sheet" id="voiceSheet">
+    <!-- Aviso caso o usuário tenha aberto como file:// -->
+    <div id="voiceProtocolWarning"
+      style="display:none;background:rgba(255,77,77,0.12);border:1px solid rgba(255,77,77,0.35);border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#ff9999;text-align:left;">
+      ⚠️ <b>Aviso de Microfone:</b> Você abriu a página diretamente como arquivo local (<code>file://</code>). O
+      Chrome/Edge bloqueia o microfone por segurança neste modo.<br>
+      👉 Abra pelo navegador no endereço do servidor: <a href="http://localhost:8080/domus-html.html"
+        style="color:var(--cyan);font-weight:700;text-decoration:underline;">http://localhost:8080/domus-html.html</a>
+      para ativar a voz!
+    </div>
+
+    <div class="voice-orb" id="voiceOrb" onclick="toggleVoiceRecording()" title="Toque para falar ou parar">
+      🎙️
+    </div>
+
+    <div class="audio-waves" id="audioWaves">
+      <span class="wave-bar" id="wb1"></span>
+      <span class="wave-bar" id="wb2"></span>
+      <span class="wave-bar" id="wb3"></span>
+      <span class="wave-bar" id="wb4"></span>
+      <span class="wave-bar" id="wb5"></span>
+    </div>
+
+    <div class="mic-status-badge" id="micStatusBadge">
+      <span class="dot" style="background:var(--green);width:6px;height:6px;"></span> Microfone pronto · Toque no orbe
+      para falar
+    </div>
+
+    <div class="voice-prompt" id="voicePrompt">Como posso ajudar na sua casa?</div>
+    <div class="voice-transcript" id="voiceTranscript">"Desligar luz do banheiro", "Trancar a casa", "Qual o
+      consumo?"...</div>
+
+    <div class="voice-chips">
+      <span class="voice-chip" onclick="executeVoiceCommand('desligar luz do banheiro')">"Desligar luz do
+        banheiro"</span>
+      <span class="voice-chip" onclick="executeVoiceCommand('ligar luz da sala')">"Ligar luz da sala"</span>
+      <span class="voice-chip" onclick="executeVoiceCommand('apagar todas as luzes')">"Apagar todas as luzes"</span>
+      <span class="voice-chip" onclick="executeVoiceCommand('trancar a casa')">"Trancar a casa"</span>
+      <span class="voice-chip" onclick="executeVoiceCommand('qual a temperatura da suite')">"Qual a temperatura da
+        suíte?"</span>
+      <span class="voice-chip" onclick="executeVoiceCommand('qual o consumo de energia')">"Qual o consumo de
+        energia?"</span>
+      <span class="voice-chip" onclick="executeVoiceCommand('ativar modo dormir')">"Modo dormir"</span>
+    </div>
+
+    <div class="voice-input-row">
+      <input type="text" id="voiceTextInput"
+        placeholder="Ou digite qualquer comando (ex: 'desligar luz do banheiro')..."
+        onkeydown="if(event.key==='Enter') sendTextCommand()">
+      <button onclick="sendTextCommand()">Enviar</button>
+      <button class="secondary" onclick="closeVoiceAssistant()">✕</button>
+    </div>
+  </div>
+
+  <!-- ========================================================
+     LABORATÓRIO DA IA / MODO SIMULAÇÃO (DRAWER PARA APRESENTAÇÃO)
+======================================================== -->
+  <div class="sandbox-drawer" id="sandboxDrawer" onclick="toggleSandbox(event)">
+    <div class="sandbox-panel" onclick="event.stopPropagation()">
+      <div class="sandbox-header">
+        <div>
+          <h3 style="font-size:16px;">🧪 Laboratório de Treinamento da IA</h3>
+          <p style="font-size:11px;color:var(--muted);">Simulações de estresse e validação para a banca</p>
+        </div>
+        <button class="secondary" style="padding:4px 8px;font-size:12px;" onclick="toggleSandbox()">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">
+        Este painel permite injetar anomalias no sistema para demonstrar como o modelo de IA detecta vazamentos, consumo
+        excessivo e executa as automações autônomas.
+      </p>
+      <div class="simGrid" id="simGrid"></div>
+      <button class="secondary" style="width:100%;margin-top:10px;" onclick="restaurarCasa()">↺ Restaurar Casa (Todos os
+        Ambientes)</button>
+    </div>
+  </div>
+
+  <!-- ========================================================
+     BOTTOM NAVIGATION BAR (APP NATIVO)
+======================================================== -->
+  <nav class="app-navbar">
+    <button class="nav-item active" id="navHome" onclick="switchTab('tabHome')">
+      <span class="nav-icon">🏠</span>
+      <span>Início</span>
+    </button>
+    <button class="nav-item" id="navEnergy" onclick="switchTab('tabEnergy')">
+      <span class="nav-icon">⚡</span>
+      <span>Consumo</span>
+    </button>
+
+    <!-- Botão Central de Destaque para Voz -->
+    <div class="nav-voice-btn" id="navVoiceBtn" onclick="openVoiceAssistant()" title="Comando de Voz DOMUS">
+      🎙️
+    </div>
+
+    <button class="nav-item" id="navCameras" onclick="switchTab('tabCameras')">
+      <span class="nav-icon">📹</span>
+      <span>Câmeras</span>
+    </button>
+    <button class="nav-item" id="navActions" onclick="switchTab('tabActions')">
+      <span class="nav-icon">🎛️</span>
+      <span>Ações</span>
+    </button>
+  </nav>
+
+  <!-- Scripts Three.js & Controls -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    // ========================================================
+    // 1. ESTADO CENTRAL RESIDENCIAL (REAPROVEITADO & EXPANDIDO)
+    // ========================================================
+    const rooms = {
+      sala: { name: "Sala / Jantar", area: 24, x: 0, z: 0, w: 8, d: 3, px: { x: 0, y: 0, w: 800, h: 300 }, cam: "pat-cctv-sala", camTag: "CAM-01", status: "normal", sensors: { presenca: "Detectada", temp: 24.2, luz: "Ligada", consumo: 0.6, porta: "Fechada", janela: "Aberta" } },
+      cozinha: { name: "Cozinha", area: 12, x: 8, z: 0, w: 4, d: 3, px: { x: 800, y: 0, w: 400, h: 300 }, cam: "pat-cctv-cozinha", camTag: "CAM-02", status: "normal", sensors: { presenca: "Não detectada", temp: 23.5, energia: 1.1, luz: "Desligada" } },
+      quarto1: { name: "Quarto 1", area: 12, x: 0, z: 3, w: 4.24, d: 2.83, px: { x: 0, y: 300, w: 424, h: 283 }, cam: "pat-cctv-quarto1", camTag: "CAM-04", status: "normal", sensors: { presenca: "Não detectada", temp: 22.8, luz: "Desligada" } },
+      escritorio: { name: "Escritório", area: 10, x: 4.24, z: 3, w: 3.52, d: 2.83, px: { x: 424, y: 300, w: 352, h: 283 }, cam: "pat-cctv-escritorio", camTag: "CAM-03", status: "normal", sensors: { presenca: "Detectada", energia: 0.9, temp: 23.0, luz: "Ligada" } },
+      quarto2: { name: "Quarto 2", area: 12, x: 7.76, z: 3, w: 4.24, d: 2.83, px: { x: 776, y: 300, w: 424, h: 283 }, cam: "pat-cctv-quarto2", camTag: "CAM-07", status: "normal", sensors: { presenca: "Não detectada", temp: 22.6, energia: 0.3, luz: "Desligada" } },
+      banheiro: { name: "Banheiro", area: 6, x: 0, z: 5.83, w: 1.44, d: 4.17, px: { x: 0, y: 583, w: 144, h: 417 }, cam: "pat-cctv-banheiro", camTag: "CAM-08", status: "normal", sensors: { agua: "120 L/dia", vazamento: "Não detectado", valvula: "Aberta", luz: "Desligada" } },
+      suite: { name: "Suíte", area: 16, x: 1.44, z: 5.83, w: 3.84, d: 4.17, px: { x: 144, y: 583, w: 384, h: 417 }, cam: "pat-cctv-suite", camTag: "CAM-05", status: "normal", sensors: { presenca: "Detectada", temp: 23.8, luz: "Desligada" } },
+      banhosuite: { name: "Banho Suíte", area: 5, x: 5.28, z: 5.83, w: 1.2, d: 4.17, px: { x: 528, y: 583, w: 120, h: 417 }, cam: "pat-cctv-banhosuite", camTag: "CAM-09", status: "normal", sensors: { luz: "Desligada", agua: "40 L/dia" } },
+      lavanderia: { name: "Lavanderia", area: 23, x: 6.48, z: 5.83, w: 5.52, d: 4.17, px: { x: 648, y: 583, w: 552, h: 417 }, cam: "pat-cctv-lavanderia", camTag: "CAM-10", status: "normal", sensors: { maquina: "Parada", agua: "0 L/h", luz: "Desligada" } }
+    };
+    const defaults = JSON.parse(JSON.stringify(rooms));
+    let selectedRoom = null, selectedSensor = null;
+    let mode = '2d';
+
+    // ========================================================
+    // SUPABASE READY LAYER (PRONTO PARA PLUGAR CREDENCIAIS)
+    // ========================================================
+    window.DOMUS_SUPABASE = {
+      url: '',        // ex: 'https://seu-projeto.supabase.co'
+      anonKey: '',    // ex: 'eyJh...'
+      isConfigured: () => Boolean(window.DOMUS_SUPABASE.url && window.DOMUS_SUPABASE.anonKey),
+      async syncCommand(room, key, val) {
+        if (!this.isConfigured()) return;
+        // Quando configurado, envia POST para a tabela 'commands'
+        console.log("[Supabase] Sincronizando comando:", { room, key, val });
+      }
+    };
+
+    // Histórico de atividades / auditoria
+    let activityLogs = [
+      { time: "10:45", type: "auto", title: "Automação Executada", desc: "Luz desligada no Quarto 1 por ausência de presença" },
+      { time: "09:30", type: "user", title: "Comando do Usuário", desc: "Modo Cinema ativado na Sala" },
+      { time: "08:15", type: "sensor", title: "Telemetria Registrada", desc: "Consumo hídrico dentro da normalidade (40 L)" }
+    ];
+
+    // Metadados dos Sensores e Dispositivos
+    const SENSOR_META = {
+      presenca: { label: "Presença", icon: "👤", device: false },
+      temp: { label: "Temperatura", icon: "🌡️", device: false },
+      energia: { label: "Energia", icon: "⚡", device: false },
+      consumo: { label: "Consumo (AC)", icon: "⚡", device: false },
+      agua: { label: "Água", icon: "💧", device: false },
+      vazamento: { label: "Vazamento", icon: "🚨", device: false },
+      luz: { label: "Iluminação", icon: "💡", device: true, onVal: "Ligada", offVal: "Desligada" },
+      valvula: { label: "Válvula", icon: "🔧", device: true, onVal: "Aberta", offVal: "Fechada" },
+      maquina: { label: "Máq. lavar", icon: "🌀", device: true, onVal: "Lavando", offVal: "Parada" },
+      porta: { label: "Porta principal", icon: "🚪", device: true, onVal: "Aberta", offVal: "Fechada", onAction: "Fechar porta", offAction: "Abrir porta" },
+      janela: { label: "Janela", icon: "🪟", device: true, onVal: "Aberta", offVal: "Fechada", onAction: "Fechar janela", offAction: "Abrir janela" }
+    };
+
+    // Eventos de Simulação para o Laboratório
+    const events = {
+      sala: { label: "Ar-condicionado sem presença", status: "atencao", sensors: { presenca: "Não detectada", luz: "Ligada", consumo: 3.2 } },
+      cozinha: { label: "Consumo energético elevado", status: "atencao", sensors: { energia: 4.8 } },
+      quarto1: { label: "Luz ligada sem presença", status: "atencao", sensors: { luz: "Ligada", presenca: "Não detectada" } },
+      escritorio: { label: "Computador em uso (normal)", status: "normal", sensors: { energia: 1.2, presenca: "Detectada" } },
+      quarto2: { label: "Confirmar estado normal", status: "normal", sensors: { presenca: "Não detectada", temp: 22.6 } },
+      banheiro: { label: "Possível vazamento", status: "critico", sensors: { vazamento: "Detectado", agua: "280 L/dia", valvula: "Aberta" } },
+      suite: { label: "Temperatura acima do padrão", status: "atencao", sensors: { temp: 28.4 } },
+      banhosuite: { label: "Luz ligada sem presença", status: "atencao", sensors: { luz: "Ligada" } },
+      lavanderia: { label: "Máquina em funcionamento", status: "equipamento", sensors: { maquina: "Lavando", agua: "12 L/h" } }
+    };
+
+    // Resolução de Alertas
+    const ALERT_ACTIONS = {
+      sala: { label: "Desligar ar-condicionado", resolve: id => { rooms[id].sensors.consumo = defaults[id].sensors.consumo; rooms[id].sensors.luz = "Desligada"; rooms[id].sensors.presenca = "Detectada"; rooms[id].status = "normal"; } },
+      cozinha: { label: "Analisar consumo", resolve: id => { rooms[id].sensors.energia = defaults[id].sensors.energia; rooms[id].status = "normal"; } },
+      quarto1: { label: "Desligar luz", resolve: id => { rooms[id].sensors.luz = "Desligada"; rooms[id].sensors.presenca = defaults[id].sensors.presenca; rooms[id].status = "normal"; } },
+      banheiro: { label: "Fechar válvula", resolve: id => { rooms[id].sensors.valvula = "Fechada"; rooms[id].sensors.vazamento = "Não detectado"; rooms[id].sensors.agua = defaults[id].sensors.agua; rooms[id].status = "normal"; } },
+      suite: { label: "Ativar climatização", resolve: id => { rooms[id].sensors.temp = defaults[id].sensors.temp; rooms[id].status = "normal"; } },
+      banhosuite: { label: "Desligar luz", resolve: id => { rooms[id].sensors.luz = "Desligada"; rooms[id].status = "normal"; } }
+    };
+
+    // Funções Utilitárias de Cores
+    function fillColor(s) { return s === "critico" ? "rgba(255,77,77,.35)" : s === "atencao" ? "rgba(245,197,66,.28)" : s === "equipamento" ? "rgba(34,230,208,.30)" : "rgba(34,230,208,.12)"; }
+    function strokeColor(s) { return s === "critico" ? "#ff4d4d" : s === "atencao" ? "#f5c542" : s === "equipamento" ? "#22e6d0" : "#263345"; }
+    function hex3d(s) { return s === "critico" ? 0xff4d4d : s === "atencao" ? 0xf5c542 : s === "equipamento" ? 0x1a5f5a : 0x123b3a; }
+    function badgeClass(s) { return s === "critico" ? "critico" : s === "atencao" ? "atencao" : s === "equipamento" ? "equipamento" : "normal"; }
+    function badgeLabel(s) { return s === "critico" ? "CRÍTICO" : s === "atencao" ? "ATENÇÃO" : s === "equipamento" ? "EM USO" : "NORMAL"; }
+    function dotHex(status) { return status === "critico" ? "#ff4d4d" : status === "atencao" ? "#f5c542" : status === "equipamento" ? "#22e6d0" : "#2ecc71"; }
+
+    function sensorStatus(key, val) {
+      if (key === "vazamento") return val === "Detectado" ? "critico" : "normal";
+      if (key === "agua") { const n = parseFloat(val); return n >= 250 ? "critico" : n >= 150 ? "atencao" : "normal"; }
+      if (key === "energia" || key === "consumo") { const n = parseFloat(val); return n >= 4 ? "atencao" : "normal"; }
+      if (key === "temp") { const n = parseFloat(val); return n >= 27 ? "atencao" : "normal"; }
+      if (key === "luz") return val === "Ligada" ? "equipamento" : "normal";
+      if (key === "maquina") return val === "Lavando" ? "equipamento" : "normal";
+      if (key === "valvula") return val === "Fechada" ? "atencao" : "normal";
+      if (key === "porta" || key === "janela") return val === "Aberta" ? "atencao" : "normal";
+      return "normal";
+    }
+
+    // Notificações Toast
+    function showToast(msg, icon = "⚡") {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+      c.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(-10px)';
+        t.style.transition = 'all .3s';
+        setTimeout(() => t.remove(), 300);
+      }, 3200);
+    }
+
+    // Log de Atividade
+    function logActivity(type, title, desc) {
+      const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      activityLogs.unshift({ time, type, title, desc });
+      if (activityLogs.length > 15) activityLogs.pop();
+      renderTimeline();
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('activityTimeline');
+      if (!container) return;
+      container.innerHTML = activityLogs.map(item => `
+    <div class="timeline-item">
+      <div class="timeline-dot ${item.type === 'alert' ? 'alert' : item.type === 'auto' ? 'auto' : ''}"></div>
+      <div class="timeline-time">${item.time}</div>
+      <div class="timeline-msg">${item.title}</div>
+      <div class="timeline-desc">${item.desc}</div>
+    </div>
+  `).join('');
+    }
+    function clearHistory() {
+      activityLogs = [];
+      renderTimeline();
+      showToast("Histórico de auditoria limpo.");
+    }
+
+    // ========================================================
+    // 2. NAVEGAÇÃO ENTRE ABAS (MOBILE BOTTOM BAR)
+    // ========================================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-screen').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+
+      const navMap = {
+        'tabHome': 'navHome',
+        'tabEnergy': 'navEnergy',
+        'tabCameras': 'navCameras',
+        'tabActions': 'navActions'
+      };
+      const activeNav = document.getElementById(navMap[tabId]);
+      if (activeNav) activeNav.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (tabId === 'tabHome' && mode === '3d') {
+        setTimeout(resize3D, 50);
+      }
+    }
+
+    // ========================================================
+    // 3. PLANTA 2D COM CÂMERAS & SVG INTERATIVO
+    // ========================================================
+    const svgEls = {};
+    function buildPlant2D() {
+      const svg = document.getElementById('plant');
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      if (defs) svg.appendChild(defs);
+
+      Object.entries(rooms).forEach(([id, r]) => {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "room-group");
+        g.onclick = () => selectRoom(id);
+
+        // Retângulo base com imagem de câmera (ou pattern) de fundo
+        if (r.cam) {
+          const camRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          camRect.setAttribute("x", r.px.x + 3);
+          camRect.setAttribute("y", r.px.y + 3);
+          camRect.setAttribute("width", r.px.w - 6);
+          camRect.setAttribute("height", r.px.h - 6);
+          camRect.setAttribute("rx", "12");
+          camRect.setAttribute("ry", "12");
+          camRect.setAttribute("fill", `url(#${r.cam})`);
+          camRect.setAttribute("pointer-events", "none");
+          g.appendChild(camRect);
+        }
+
+        // Retângulo de status com borda e preenchimento reativo
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", r.px.x);
+        rect.setAttribute("y", r.px.y);
+        rect.setAttribute("width", r.px.w);
+        rect.setAttribute("height", r.px.h);
+        rect.setAttribute("class", "room-bg");
+        rect.setAttribute("fill", fillColor(r.status));
+        rect.setAttribute("stroke", strokeColor(r.status));
+        rect.setAttribute("stroke-width", "2");
+        g.appendChild(rect);
+
+        // Tag da Câmera no canto superior
+        if (r.camTag) {
+          const tag = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          tag.setAttribute("x", r.px.x + 16);
+          tag.setAttribute("y", r.px.y + 24);
+          tag.setAttribute("class", "rcam-tag");
+          tag.textContent = `● ${r.camTag}`;
+          g.appendChild(tag);
+        }
+
+        // Nome do Ambiente
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", r.px.x + r.px.w / 2);
+        label.setAttribute("y", r.px.y + (r.px.h > 350 ? 54 : 44));
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("class", "rlabel");
+        label.textContent = r.name.toUpperCase();
+        g.appendChild(label);
+
+        // Metragem
+        const area = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        area.setAttribute("x", r.px.x + r.px.w / 2);
+        area.setAttribute("y", r.px.y + (r.px.h > 350 ? 76 : 64));
+        area.setAttribute("text-anchor", "middle");
+        area.setAttribute("class", "rarea");
+        area.textContent = r.area + " m²";
+        g.appendChild(area);
+
+        // Pontos de Sensores
+        const keys = Object.keys(r.sensors);
+        const pad = 24;
+        const usableW = r.px.w - pad * 2;
+        svgEls[id] = { sensorDots: {} };
+
+        keys.forEach((k, i) => {
+          const cx = r.px.x + pad + (keys.length > 1 ? (usableW * i / (keys.length - 1)) : usableW / 2);
+          const cy = r.px.y + r.px.h - 22;
+          const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          dot.setAttribute("cx", cx);
+          dot.setAttribute("cy", cy);
+          dot.setAttribute("r", 9);
+          dot.setAttribute("class", "sensor-dot");
+          dot.onclick = (ev) => { ev.stopPropagation(); selectSensor(id, k); };
+          g.appendChild(dot);
+          svgEls[id].sensorDots[k] = dot;
+        });
+
+        svg.appendChild(g);
+        svgEls[id].rect = rect;
+      });
+    }
+
+    function render2DRoom(id) {
+      const r = rooms[id], el = svgEls[id];
+      if (!el || !el.rect) return;
+      el.rect.setAttribute("fill", fillColor(r.status));
+      el.rect.setAttribute("stroke", id === selectedRoom && !selectedSensor ? "#22e6d0" : strokeColor(r.status));
+      el.rect.setAttribute("stroke-width", id === selectedRoom && !selectedSensor ? 4 : 2);
+      Object.entries(r.sensors).forEach(([k, v]) => {
+        const dot = el.sensorDots[k];
+        if (!dot) return;
+        const st = sensorStatus(k, v);
+        dot.setAttribute("fill", dotHex(st));
+        const isSel = selectedSensor && selectedSensor.room === id && selectedSensor.key === k;
+        dot.setAttribute("stroke", isSel ? "#fff" : "#06090e");
+        dot.setAttribute("stroke-width", isSel ? 3.5 : 2);
+      });
+    }
+
+    // ========================================================
+    // 4. CENA 3D THREE.JS
+    // ========================================================
+    const canvas = document.getElementById('three-canvas');
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x06090e);
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(6, 0, 5); controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.85); dir.position.set(8, 14, 6); scene.add(dir);
+
+    const floorMeshes = []; const sensorMeshes = []; const threeEls = {};
+    function buildScene3D() {
+      Object.entries(rooms).forEach(([id, r]) => {
+        const cx = r.x + r.w / 2, cz = r.z + r.d / 2;
+        const floorGeo = new THREE.BoxGeometry(r.w - 0.06, 0.1, r.d - 0.06);
+        const floorMat = new THREE.MeshStandardMaterial({ color: hex3d(r.status) });
+        const floor = new THREE.Mesh(floorGeo, floorMat); floor.position.set(cx, 0.05, cz);
+        floor.userData.id = id; scene.add(floor); floorMeshes.push(floor);
+
+        const wallGeo = new THREE.BoxGeometry(r.w - 0.06, 1.1, r.d - 0.06);
+        const wall = new THREE.Mesh(wallGeo, new THREE.MeshBasicMaterial({ color: 0x22e6d0, transparent: true, opacity: 0.05 }));
+        wall.position.set(cx, 0.6, cz); scene.add(wall);
+
+        const edgeMat = new THREE.LineBasicMaterial({ color: strokeColor(r.status) === "#263345" ? 0x22e6d0 : strokeColor(r.status) });
+        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(wallGeo), edgeMat);
+        edges.position.copy(wall.position); scene.add(edges);
+
+        const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 64;
+        const ctx = cvs.getContext('2d'); ctx.font = 'bold 26px -apple-system, sans-serif';
+        ctx.fillStyle = '#e8f0f5'; ctx.textAlign = 'center'; ctx.fillText(r.name, 128, 40);
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cvs), transparent: true }));
+        sprite.scale.set(2.2, 0.55, 1); sprite.position.set(cx, 1.6, cz); scene.add(sprite);
+
+        const keys = Object.keys(r.sensors);
+        const mats = {};
+        keys.forEach((k, i) => {
+          const sx = r.x + 0.3 + (keys.length > 1 ? ((r.w - 0.6) * i / (keys.length - 1)) : (r.w - 0.6) / 2);
+          const sz = r.z + r.d - 0.3;
+          const mat = new THREE.MeshBasicMaterial({ color: dotHex(sensorStatus(k, r.sensors[k])) });
+          const sph = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), mat);
+          sph.position.set(sx, 0.3, sz);
+          sph.userData = { room: id, key: k };
+          scene.add(sph); sensorMeshes.push(sph);
+          mats[k] = mat;
+        });
+
+        threeEls[id] = { floorMat, edgeMat, sensorMats: mats };
+      });
+      const base = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshBasicMaterial({ color: 0x06090e }));
+      base.rotation.x = -Math.PI / 2; base.position.set(6, -0.01, 5); scene.add(base);
+    }
+
+    function refresh3DRoom(id) {
+      const r = rooms[id], el = threeEls[id];
+      if (!el) return;
+      el.floorMat.color.setHex(hex3d(r.status));
+      const sc = strokeColor(r.status);
+      el.edgeMat.color.set(sc === "#263345" ? "#223142" : sc);
+      Object.entries(r.sensors).forEach(([k, v]) => {
+        if (el.sensorMats[k]) el.sensorMats[k].color.set(dotHex(sensorStatus(k, v)));
+      });
+    }
+
+    function resize3D() {
+      const box = canvas.parentElement.getBoundingClientRect();
+      if (box.width === 0) return;
+      renderer.setSize(box.width, box.height);
+      camera.aspect = box.width / box.height;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize3D);
+    const camPresets = {
+      geral: () => { camera.position.set(14, 10, 16); controls.target.set(6, 0, 5); },
+      topo: () => { camera.position.set(6, 18, 5.01); controls.target.set(6, 0, 5); },
+      iso: () => { camera.position.set(16, 12, -4); controls.target.set(6, 0, 5); }
+    };
+    function setCam(name) { camPresets[name](); }
+    function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+
+    const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+    canvas.addEventListener('pointerdown', e => { canvas._dx = e.clientX; canvas._dy = e.clientY; });
+    canvas.addEventListener('pointerup', e => {
+      if (Math.abs(e.clientX - canvas._dx) < 5 && Math.abs(e.clientY - canvas._dy) < 5) {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const sHits = raycaster.intersectObjects(sensorMeshes);
+        if (sHits.length) { selectSensor(sHits[0].object.userData.room, sHits[0].object.userData.key); return; }
+        const hits = raycaster.intersectObjects(floorMeshes);
+        if (hits.length) selectRoom(hits[0].object.userData.id);
+      }
+    });
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('box2d').style.display = m === '2d' ? 'block' : 'none';
+      document.getElementById('box3d').style.display = m === '3d' ? 'block' : 'none';
+      document.getElementById('btn2d').classList.toggle('active', m === '2d');
+      document.getElementById('btn3d').classList.toggle('active', m === '3d');
+      if (m === '3d') setTimeout(resize3D, 40);
+    }
+
+    // ========================================================
+    // 5. ATUALIZAÇÃO CENTRAL & RENDERS DE PAINEL
+    // ========================================================
+    function refreshAll(id) {
+      if (id) { render2DRoom(id); refresh3DRoom(id); }
+      else { Object.keys(rooms).forEach(r => { render2DRoom(r); refresh3DRoom(r); }); }
+      renderPanel();
+      renderScore();
+      renderAlerts();
+      renderWater();
+      renderEnergy();
+      renderSecurity();
+      renderAutomation();
+      scanAutomations();
+    }
+
+    function selectRoom(id) {
+      selectedRoom = id; selectedSensor = null;
+      refreshAll();
+    }
+    function selectSensor(room, key) {
+      selectedRoom = room; selectedSensor = { room, key };
+      refreshAll();
+    }
+
+    function toggleDevice(room, key) {
+      const meta = SENSOR_META[key];
+      const cur = rooms[room].sensors[key];
+      const next = (cur === meta.onVal) ? meta.offVal : meta.onVal;
+      rooms[room].sensors[key] = next;
+      logActivity('user', `Comando Manual: ${rooms[room].name}`, `${meta.label} alterado para ${next}`);
+      showToast(`${meta.label} no(a) ${rooms[room].name}: ${next}`);
+      window.DOMUS_SUPABASE.syncCommand(room, key, next);
+      refreshAll(room);
+    }
+
+    // Render do Painel de Cômodo / Sensor
+    function renderPanel() {
+      const p = document.getElementById('panel');
+      if (!selectedRoom) {
+        p.innerHTML = '<p class="empty">Selecione um cômodo na planta ou toque diretamente num sensor para gerenciar seus dispositivos.</p>';
+        return;
+      }
+      const r = rooms[selectedRoom];
+
+      if (selectedSensor) {
+        const key = selectedSensor.key, meta = SENSOR_META[key];
+        const val = r.sensors[key], st = sensorStatus(key, val);
+        let cmd = '';
+        if (meta.device) {
+          cmd = `<button style="margin-top:14px;width:100%;" onclick="toggleDevice('${selectedRoom}','${key}')">${val === meta.onVal ? (meta.onAction || '⏻ Desligar') : (meta.offAction || '⏻ Ligar')}</button>`;
+        }
+        p.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;color:var(--cyan);cursor:pointer;" onclick="selectRoom('${selectedRoom}')">← Voltar para ${r.name}</span>
+        <span class="badge ${badgeClass(st)}">${badgeLabel(st)}</span>
+      </div>
+      <h2 style="font-size:17px;margin-bottom:4px;">${meta.icon} ${meta.label}</h2>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Localização: ${r.name}</div>
+      <div class="row"><span>Leitura atual</span><b style="color:var(--txt)">${val}</b></div>
+      <div class="row"><span>Tipo de componente</span><span>${meta.device ? 'Dispositivo Atuador' : 'Sensor Inteligente'}</span></div>
+      ${cmd}
+    `;
+        return;
+      }
+
+      const rowsHtml = Object.entries(r.sensors).map(([k, v]) => {
+        const meta = SENSOR_META[k], st = sensorStatus(k, v);
+        const active = selectedSensor && selectedSensor.key === k ? 'active' : '';
+        return `
+      <div class="row ${active}" onclick="selectSensor('${selectedRoom}','${k}')">
+        <span>${meta.icon} ${meta.label}</span>
+        <span>${v} <span class="badge ${badgeClass(st)}" style="margin-left:6px;padding:2px 7px;">${badgeLabel(st)}</span></span>
+      </div>`;
+      }).join('');
+
+      p.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <h2 style="font-size:17px;">${r.name}</h2>
+      <span class="badge ${badgeClass(r.status)}">${badgeLabel(r.status)}</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">${r.area} m² · Toque em qualquer item para controlar</div>
+    ${rowsHtml}
+  `;
+    }
+
+    // Render DOMUS Score
+    function computeScore() {
+      let energia = 100, agua = 100, eficiencia = 100, seguranca = 100, sustentabilidade = 100, comportamento = 100;
+      Object.values(rooms).forEach(r => {
+        if (r.status === "critico") { seguranca -= 20; agua -= 25; sustentabilidade -= 15; eficiencia -= 10; }
+        else if (r.status === "atencao") { eficiencia -= 8; comportamento -= 10; energia -= 8; sustentabilidade -= 5; }
+      });
+      const c = v => Math.max(0, Math.min(100, Math.round(v)));
+      const cats = { Energia: c(energia), Água: c(agua), Eficiência: c(eficiencia), Segurança: c(seguranca), Sustentabilidade: c(sustentabilidade), Comportamento: c(comportamento) };
+      const overall = Math.round(Object.values(cats).reduce((a, b) => a + b, 0) / 6);
+      return { overall, cats };
+    }
+    function renderScore() {
+      const { overall, cats } = computeScore();
+      const el = document.getElementById('scoreCard');
+      if (!el) return;
+      el.innerHTML = `
+    <div class="score-box">
+      <div class="score-num-wrapper">
+        <div class="scoreNum">${overall}<small>/100</small></div>
+      </div>
+      <div class="scoreMeta">
+        <h3>DOMUS SCORE</h3>
+        <p>Índice de sustentabilidade e saúde da residência</p>
+      </div>
+    </div>
+    <div class="scoreGrid">
+      ${Object.entries(cats).map(([k, v]) => `
+        <div class="scoreItem">
+          <span>${k}</span>
+          <b>${v}%</b>
+          <div class="bar"><i style="width:${v}%"></i></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+    }
+
+    // Render Alert Center
+    function computeAlerts() {
+      return Object.entries(rooms)
+        .filter(([id, r]) => (r.status === "critico" || r.status === "atencao") && ALERT_ACTIONS[id])
+        .sort((a, b) => (a[1].status === "critico" ? 0 : 1) - (b[1].status === "critico" ? 0 : 1))
+        .map(([id, r]) => ({ id, room: r.name, status: r.status, msg: events[id].label, action: ALERT_ACTIONS[id].label }));
+    }
+    function renderAlerts() {
+      const alerts = computeAlerts();
+      const box = document.getElementById('alertCenter');
+      if (!box) return;
+      if (!alerts.length) {
+        box.innerHTML = `
+      <div class="panel-header" style="margin-bottom:0;">
+        <h3 class="panel-title"><span>🔔</span> Alert Center</h3>
+        <span class="badge normal">Normal</span>
+      </div>
+      <p class="empty" style="padding:10px 0 0;">Nenhum alerta ativo. Casa operando em conformidade.</p>`;
+        return;
+      }
+      box.innerHTML = `
+    <div class="panel-header">
+      <h3 class="panel-title"><span>🔔</span> Alert Center (${alerts.length})</h3>
+      <span class="badge critico">Atenção Necessária</span>
+    </div>` + alerts.map(a => `
+    <div class="alertCard ${a.status}">
+      <div class="alertTop"><span>${a.status === "critico" ? "🔴" : "🟡"} ${a.room}</span></div>
+      <div class="alertMsg">${a.msg}</div>
+      <div class="alertBtns">
+        <button onclick="selectRoom('${a.id}')" class="secondary">Ver no mapa</button>
+        <button onclick="resolveAlert('${a.id}')">${a.action}</button>
+      </div>
+    </div>`).join('');
+    }
+    function resolveAlert(id) {
+      ALERT_ACTIONS[id].resolve(id);
+      logActivity('user', `Alerta Resolvido: ${rooms[id].name}`, ALERT_ACTIONS[id].label);
+      showToast(`Alerta resolvido no(a) ${rooms[id].name}`);
+      refreshAll(id);
+    }
+
+    // Render DOMUS Security
+    function renderSecurity() {
+      const el = document.getElementById('securityCard');
+      if (!el) return;
+      const s = rooms.sala.sensors;
+      const ocupados = Object.values(rooms).filter(r => r.sensors.presenca === "Detectada").map(r => r.name);
+      el.innerHTML = `
+    <div class="panel-header">
+      <h3 class="panel-title"><span>🛡️</span> DOMUS Security</h3>
+      <span class="badge ${s.porta === "Aberta" || s.janela === "Aberta" ? 'atencao' : 'normal'}">${s.porta === "Aberta" || s.janela === "Aberta" ? 'Atenção' : 'Seguro'}</span>
+    </div>
+    <div class="row" onclick="selectSensor('sala','porta')">
+      <span>🚪 Porta Principal</span>
+      <span class="badge ${badgeClass(sensorStatus('porta', s.porta))}">${s.porta}</span>
+    </div>
+    <div class="row" onclick="selectSensor('sala','janela')">
+      <span>🪟 Janela da Sala</span>
+      <span class="badge ${badgeClass(sensorStatus('janela', s.janela))}">${s.janela}</span>
+    </div>
+    <div class="row">
+      <span>Ambientes com Presença</span>
+      <b style="color:var(--txt)">${ocupados.length ? ocupados.join(', ') : 'Nenhum'}</b>
+    </div>
+  `;
+    }
+
+    // Render DOMUS Automation
+    let automationRules = [
+      { id: 'valve', enabled: true, label: "Vazamento detectado → fechar válvula", check: () => Object.keys(rooms).filter(id => rooms[id].sensors.vazamento === "Detectado"), action: id => { rooms[id].sensors.valvula = "Fechada"; rooms[id].sensors.vazamento = "Não detectado"; rooms[id].sensors.agua = defaults[id].sensors.agua; rooms[id].status = "normal"; } },
+      { id: 'light', enabled: true, label: "Sem presença por 15 min → desligar luz", check: () => Object.keys(rooms).filter(id => rooms[id].sensors.luz === "Ligada" && rooms[id].sensors.presenca === "Não detectada"), action: id => { rooms[id].sensors.luz = "Desligada"; if (rooms[id].status === "atencao") rooms[id].status = "normal"; } },
+      { id: 'clima', enabled: true, label: "Temp. > 27°C com presença → climatização", check: () => Object.keys(rooms).filter(id => rooms[id].sensors.temp !== undefined && parseFloat(rooms[id].sensors.temp) > 27 && rooms[id].sensors.presenca === "Detectada"), action: id => { rooms[id].sensors.temp = defaults[id].sensors.temp; if (rooms[id].status === "atencao") rooms[id].status = "normal"; } }
+    ];
+    let pendingAuto = {};
+    function scanAutomations() {
+      automationRules.forEach(rule => {
+        if (!rule.enabled) return;
+        rule.check().forEach(id => {
+          const key = rule.id + ':' + id;
+          if (pendingAuto[key]) return;
+          pendingAuto[key] = true;
+          setTimeout(() => {
+            delete pendingAuto[key];
+            if (rule.check().includes(id)) {
+              rule.action(id);
+              logActivity('auto', `Regra IA Executada`, `${rule.label} no(a) ${rooms[id].name}`);
+              showToast(`IA executou: ${rule.label}`);
+              refreshAll();
+            }
+          }, 1600);
+        });
+      });
+    }
+    function toggleRule(id) {
+      const r = automationRules.find(x => x.id === id);
+      r.enabled = !r.enabled;
+      showToast(`Regra ${r.label.split('→')[0]}: ${r.enabled ? 'Ativada' : 'Desativada'}`);
+      refreshAll();
+    }
+    function renderAutomation() {
+      const el = document.getElementById('automationCard');
+      if (!el) return;
+      el.innerHTML = `
+    <div class="panel-header">
+      <h3 class="panel-title"><span>🤖</span> DOMUS Automation</h3>
+      <span class="badge equipamento">Autônomo</span>
+    </div>
+    ${automationRules.map(r => `
+      <div class="ruleRow">
+        <div>
+          <span>${r.label}</span>
+          <small>${r.enabled ? 'Ativa — acionamento automático por IA' : 'Pausada pelo usuário'}</small>
+        </div>
+        <label class="switch">
+          <input type="checkbox" ${r.enabled ? 'checked' : ''} onchange="toggleRule('${r.id}')">
+          <span class="slider"></span>
+        </label>
+      </div>`).join('')}
+  `;
+    }
+
+    // Render DOMUS Energy & Water (Na Tela de Consumo)
+    const ENERGY_ROOMS = ['sala', 'cozinha', 'escritorio', 'quarto2'];
+    function energyVal(id) { const s = rooms[id].sensors; return s.energia !== undefined ? s.energia : s.consumo; }
+    function renderEnergy() {
+      const el = document.getElementById('energyCard');
+      const ranked = ENERGY_ROOMS.map(id => ({ id, name: rooms[id].name, v: parseFloat(energyVal(id)) })).sort((a, b) => b.v - a.v);
+      const atual = ranked.reduce((s, r) => s + r.v, 0);
+      const diario = Math.round(atual * 24 * 10) / 10;
+      const mensal = Math.round(diario * 30);
+      const custo = (mensal * 0.85).toFixed(2);
+
+      // Atualiza métricas na tela 2
+      const mVal = document.getElementById('metricEnergyTotal');
+      const mCost = document.getElementById('metricEnergyCost');
+      if (mVal) mVal.textContent = `${atual.toFixed(1)} kWh`;
+      if (mCost) mCost.textContent = `R$ ${custo}`;
+
+      if (!el) return;
+      el.innerHTML = `
+    <div class="panel-header">
+      <h3 class="panel-title"><span>⚡</span> DOMUS ENERGY</h3>
+      <span class="badge ${atual > 4 ? 'atencao' : 'normal'}">${atual.toFixed(1)} kWh em uso</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Consumo estimado: ~${diario} kWh/dia · Projeção mensal: ~${mensal} kWh</div>
+    <div class="row"><span>Custo estimado no mês</span><b style="color:var(--txt)">R$ ${custo}</b></div>
+    <div class="row"><span>Horário de pico tarifário</span><span>18h00 às 21h00</span></div>
+    <div class="hist">
+      <strong style="color:var(--txt)">Maiores consumidores atuais</strong>
+      ${ranked.map(r => `<div>• ${r.name}: ${r.v.toFixed(1)} kWh</div>`).join('')}
+    </div>
+  `;
+    }
+
+    function renderWater() {
+      const el = document.getElementById('waterCard');
+      const waterRooms = ['banheiro', 'banhosuite'];
+      let hoje = 0, media = 0;
+      const rowsHtml = waterRooms.map(id => {
+        const r = rooms[id];
+        const cur = parseFloat(r.sensors.agua), avg = parseFloat(defaults[id].sensors.agua);
+        hoje += cur; media += avg;
+        const dev = avg ? Math.round((cur - avg) / avg * 100) : 0;
+        const st = sensorStatus('agua', r.sensors.agua);
+        return `<div class="row"><span>${r.name}</span><span>${cur} L/dia <span class="badge ${badgeClass(st)}" style="margin-left:6px;padding:1px 7px;">${dev >= 0 ? '+' : ''}${dev}%</span></span></div>`;
+      }).join('');
+      const devTotal = media ? Math.round((hoje - media) / media * 100) : 0;
+
+      // Atualiza métricas na tela 2
+      const mW = document.getElementById('metricWaterTotal');
+      const mV = document.getElementById('metricValveState');
+      if (mW) mW.textContent = `${hoje} L`;
+      if (mV) mV.textContent = rooms.banheiro.sensors.valvula;
+
+      if (!el) return;
+      el.innerHTML = `
+    <div class="panel-header">
+      <h3 class="panel-title"><span>💧</span> DOMUS WATER</h3>
+      <span class="badge ${devTotal >= 50 ? 'critico' : 'normal'}">${hoje} Litros hoje</span>
+    </div>
+    ${rowsHtml}
+    <div class="row"><span>Válvula principal de corte</span><span class="badge ${rooms.banheiro.sensors.valvula === 'Fechada' ? 'atencao' : 'normal'}">${rooms.banheiro.sensors.valvula}</span></div>
+    <div class="row"><span>Vazão na Lavanderia</span><span>${rooms.lavanderia.sensors.agua}</span></div>
+  `;
+    }
+
+    // ========================================================
+    // 6. AÇÕES GLOBAIS (MASTER CONTROLS 100% CONECTADOS)
+    // ========================================================
+    function masterControlLights(turnOn) {
+      const state = turnOn ? "Ligada" : "Desligada";
+      let count = 0;
+      Object.keys(rooms).forEach(id => {
+        if (rooms[id].sensors.luz !== undefined) {
+          rooms[id].sensors.luz = state;
+          window.DOMUS_SUPABASE.syncCommand(id, 'luz', state);
+          count++;
+        }
+      });
+      logActivity('user', `Ação Global: Iluminação`, `Todas as lâmpadas (${count} ambientes) foram ${turnOn ? 'acesas' : 'apagadas'}`);
+      showToast(`Todas as luzes foram ${turnOn ? 'ligadas' : 'apagadas'}!`, "💡");
+      refreshAll();
+    }
+
+    function masterControlAccess(action) {
+      const isClose = action === 'fechar';
+      rooms.sala.sensors.porta = isClose ? "Fechada" : "Aberta";
+      rooms.sala.sensors.janela = isClose ? "Fechada" : "Aberta";
+      window.DOMUS_SUPABASE.syncCommand('sala', 'porta', rooms.sala.sensors.porta);
+      window.DOMUS_SUPABASE.syncCommand('sala', 'janela', rooms.sala.sensors.janela);
+      logActivity('user', `Ação Global: Segurança`, `Portas e janelas foram ${isClose ? 'trancadas' : 'abertas'}`);
+      showToast(`Acessos residenciais: ${isClose ? 'Trancados com segurança' : 'Abertos'}!`, "🔒");
+      refreshAll();
+    }
+
+    function masterControlClimate(mode) {
+      if (mode === 'desligar') {
+        rooms.sala.sensors.consumo = 0.6;
+        showToast("Climatização desligada em todos os ambientes.", "❄️");
+        logActivity('user', "Climatização Geral", "Ar-condicionado desligado");
+      } else {
+        rooms.sala.sensors.consumo = 1.4;
+        rooms.sala.sensors.temp = 23.0;
+        rooms.suite.sensors.temp = 23.0;
+        showToast("Modo Conforto ativado: 23°C em toda a residência.", "❄️");
+        logActivity('user', "Climatização Geral", "Temperatura ajustada para 23°C");
+      }
+      refreshAll();
+    }
+
+    function masterControlWater(action) {
+      const isClose = action === 'fechar';
+      rooms.banheiro.sensors.valvula = isClose ? "Fechada" : "Aberta";
+      if (isClose) rooms.banheiro.sensors.vazamento = "Não detectado";
+      window.DOMUS_SUPABASE.syncCommand('banheiro', 'valvula', rooms.banheiro.sensors.valvula);
+      logActivity('user', `Válvula Hidráulica`, `Válvula geral ${isClose ? 'bloqueada' : 'liberada'}`);
+      showToast(`Válvula de água geral: ${isClose ? 'Fechada / Corte de Emergência' : 'Aberta'}!`, "💧");
+      refreshAll();
+    }
+
+    function executeScene(sceneId) {
+      if (sceneId === 'sleep') {
+        masterControlLights(false);
+        masterControlAccess('fechar');
+        rooms.sala.sensors.consumo = 0.8;
+        logActivity('user', "Cena Inteligente: Modo Dormir", "Luzes apagadas, portas trancadas e clima noturno");
+        showToast("🌙 Modo Dormir ativado com sucesso!");
+      } else if (sceneId === 'away') {
+        masterControlLights(false);
+        masterControlAccess('fechar');
+        Object.values(rooms).forEach(r => { if (r.sensors.presenca) r.sensors.presenca = "Não detectada"; });
+        rooms.sala.sensors.consumo = 0.5;
+        logActivity('user', "Cena Inteligente: Fora de Casa", "Modo sentinela ativado e energia otimizada");
+        showToast("🚪 Modo Fora de Casa ativado!");
+      } else if (sceneId === 'cinema') {
+        masterControlLights(false);
+        rooms.sala.sensors.luz = "Ligada";
+        rooms.sala.sensors.janela = "Fechada";
+        rooms.sala.sensors.temp = 22.5;
+        logActivity('user', "Cena Inteligente: Cinema", "Iluminação aconchegante na Sala e clima 22°C");
+        showToast("🎬 Modo Cinema preparado na Sala!");
+      } else if (sceneId === 'security') {
+        masterControlAccess('fechar');
+        rooms.banheiro.sensors.valvula = "Fechada";
+        logActivity('user', "Cena Inteligente: Segurança Máxima", "Portas travadas e corte preventivo de água");
+        showToast("🛡️ Segurança Máxima ativada!");
+      }
+      refreshAll();
+    }
+
+    // ========================================================
+    // 7. CÂMERAS CFTV MODAL & ZOOM
+    // ========================================================
+    function openCctvModal(title, imgSrc, camCode, status) {
+      document.getElementById('modalCamTitle').textContent = `${title} (${camCode})`;
+      document.getElementById('modalCamSub').textContent = `${camCode} · Feed Criptografado Full HD`;
+      document.getElementById('modalCamImg').src = imgSrc;
+      document.getElementById('modalCamStatus').textContent = `● Status: ${status}`;
+      document.getElementById('cctvModal').classList.add('active');
+    }
+    function closeCctvModal() {
+      document.getElementById('cctvModal').classList.remove('active');
+    }
+    function snapshotCamera() {
+      showToast("Foto da câmera salva com sucesso!", "📸");
+    }
+
+    // ========================================================
+    // 8. COMANDO DE VOZ DOMUS AI (WEB SPEECH API + AUDIO ANALYZER)
+    // ========================================================
+    let recognition = null;
+    let isRecording = false;
+    let audioContext = null;
+    let audioAnalyser = null;
+    let audioStream = null;
+    let animFrameId = null;
+
+    // Verifica protocolo logo ao carregar
+    function checkVoiceProtocol() {
+      const warning = document.getElementById('voiceProtocolWarning');
+      if (warning && location.protocol === 'file:') {
+        warning.style.display = 'block';
+      }
+    }
+    checkVoiceProtocol();
+
+    function initSpeech() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        const badge = document.getElementById('micStatusBadge');
+        if (badge) badge.innerHTML = '<span class="dot" style="background:var(--red);"></span> Reconhecimento de voz não suportado neste navegador';
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'pt-BR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        document.getElementById('voiceOrb').classList.add('listening');
+        document.getElementById('navVoiceBtn').classList.add('recording');
+        document.getElementById('audioWaves').classList.add('recording');
+        document.getElementById('voicePrompt').textContent = "Estou ouvindo... Fale agora";
+        const badge = document.getElementById('micStatusBadge');
+        if (badge) badge.innerHTML = '<span class="pulse-dot" style="background:#ff4d4d;box-shadow:0 0 8px #ff4d4d;"></span> Ouvindo áudio do fone em tempo real...';
+        startAudioVisualizer();
+      };
+
+      recognition.onresult = (e) => {
+        let interim = '';
+        let finalTranscript = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+            finalTranscript += e.results[i][0].transcript;
+          } else {
+            interim += e.results[i][0].transcript;
+          }
+        }
+        const current = finalTranscript || interim;
+        if (current) {
+          document.getElementById('voiceTranscript').textContent = `"${current}"`;
+        }
+        if (finalTranscript) {
+          executeVoiceCommand(finalTranscript);
+          stopSpeech();
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.warn("[DOMUS Voice Error]", e.error);
+        const badge = document.getElementById('micStatusBadge');
+        let errText = "Não foi possível captar a voz.";
+
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          if (location.protocol === 'file:') {
+            errText = "Microfone bloqueado: O Chrome não permite voz via arquivo local (file://). Abra por http://localhost:8080/domus-html.html!";
+          } else {
+            errText = "Permissão negada. Clique no ícone de cadeado na barra de endereços e autorize o Microfone.";
+          }
+          showToast(errText, "⚠️");
+        } else if (e.error === 'no-speech') {
+          errText = "Nenhuma voz identificada. Fale mais próximo ao fone ou tente de novo.";
+        } else if (e.error === 'audio-capture') {
+          errText = "Nenhum microfone encontrado. Verifique se o headset está conectado.";
+        } else if (e.error === 'network') {
+          errText = "Erro de conexão do serviço de voz. Verifique a internet.";
+        }
+
+        if (badge) badge.innerHTML = `<span class="dot" style="background:var(--yellow);"></span> ${errText}`;
+        document.getElementById('voicePrompt').textContent = errText;
+        stopSpeech();
+      };
+
+      recognition.onend = () => {
+        if (isRecording) {
+          stopSpeech();
+        }
+      };
+    }
+    initSpeech();
+
+    // Inicializa visualizador de áudio real do microfone
+    async function startAudioVisualizer() {
+      try {
+        if (!audioStream) {
+          audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+        if (!audioAnalyser) {
+          audioAnalyser = audioContext.createAnalyser();
+          audioAnalyser.fftSize = 64;
+          const source = audioContext.createMediaStreamSource(audioStream);
+          source.connect(audioAnalyser);
+        }
+
+        const dataArray = new Uint8Array(audioAnalyser.frequencyBinCount);
+        const bars = [
+          document.getElementById('wb1'),
+          document.getElementById('wb2'),
+          document.getElementById('wb3'),
+          document.getElementById('wb4'),
+          document.getElementById('wb5')
+        ];
+        const orb = document.getElementById('voiceOrb');
+
+        function animateWaves() {
+          if (!isRecording) return;
+          audioAnalyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          const avg = sum / dataArray.length; // volume médio de 0 a 255
+
+          // Anima as barrinhas
+          bars.forEach((bar, idx) => {
+            if (!bar) return;
+            const val = dataArray[idx * 3] || avg;
+            const height = Math.max(6, Math.min(26, Math.round(val / 8)));
+            bar.style.height = `${height}px`;
+          });
+
+          // Anima o orbe pulsando conforme a intensidade da voz
+          if (orb) {
+            const scale = 1 + Math.min(0.25, (avg / 255) * 0.4);
+            orb.style.transform = `scale(${scale})`;
+          }
+
+          animFrameId = requestAnimationFrame(animateWaves);
+        }
+        animateWaves();
+      } catch (err) {
+        console.log("[Visualizer]", "Não foi possível iniciar analisador de áudio:", err);
+      }
+    }
+
+    function stopAudioVisualizer() {
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      const bars = document.querySelectorAll('.wave-bar');
+      bars.forEach(b => b.style.height = '6px');
+      const orb = document.getElementById('voiceOrb');
+      if (orb) orb.style.transform = 'scale(1)';
+    }
+
+    function toggleVoiceRecording() {
+      if (!recognition) {
+        initSpeech();
+        if (!recognition) {
+          showToast("Reconhecimento de voz não suportado neste navegador. Use a digitação.", "⚠️");
+          return;
+        }
+      }
+
+      if (isRecording) {
+        try { recognition.stop(); } catch (e) { }
+        stopSpeech();
+      } else {
+        // Solicita explicitamente getUserMedia antes para garantir permissão e ativar visualizador
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          audioStream = stream;
+          try {
+            recognition.start();
+          } catch (e) {
+            console.warn("Recognition start erro:", e);
+            stopSpeech();
+          }
+        }).catch(err => {
+          console.warn("Permissão de áudio negada:", err);
+          const badge = document.getElementById('micStatusBadge');
+          if (badge) badge.innerHTML = '<span class="dot" style="background:var(--red);"></span> Permissão de microfone bloqueada pelo navegador';
+          document.getElementById('voicePrompt').textContent = "Permita o acesso ao microfone no navegador para falar.";
+          showToast("Microfone bloqueado. Autorize no ícone de cadeado do navegador.", "⚠️");
+          stopSpeech();
+        });
+      }
+    }
+
+    function stopSpeech() {
+      isRecording = false;
+      stopAudioVisualizer();
+      document.getElementById('voiceOrb').classList.remove('listening');
+      document.getElementById('navVoiceBtn').classList.remove('recording');
+      document.getElementById('audioWaves').classList.remove('recording');
+      const badge = document.getElementById('micStatusBadge');
+      if (badge && !badge.textContent.includes('bloqueada') && !badge.textContent.includes('arquivo local')) {
+        badge.innerHTML = '<span class="dot" style="background:var(--green);width:6px;height:6px;"></span> Microfone pronto · Toque no orbe para falar';
+      }
+    }
+
+    function openVoiceAssistant() {
+      document.getElementById('voiceSheet').classList.add('active');
+      checkVoiceProtocol();
+      toggleVoiceRecording();
+    }
+
+    function closeVoiceAssistant() {
+      document.getElementById('voiceSheet').classList.remove('active');
+      if (recognition && isRecording) {
+        try { recognition.stop(); } catch (e) { }
+      }
+      stopSpeech();
+    }
+
+    function triggerVoiceSpeak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // cancela falas anteriores para resposta imediata
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'pt-BR';
+        u.rate = 1.05;
+        u.pitch = 1.0;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    // ========================================================
+    // MOTOR NLP DE REGRAS DE NEGÓCIO DA IA (PARSER ESTRUTURADO)
+    // ========================================================
+    function normalizeAI(text) {
+      return text.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos para bater 'suite' e 'suíte'
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+        .trim();
+    }
+
+    function executeVoiceCommand(rawCmd) {
+      if (!rawCmd || !rawCmd.trim()) return;
+      const raw = rawCmd.trim();
+      const cmd = normalizeAI(raw);
+      let feedback = "";
+      let actionTaken = false;
+
+      console.log("[DOMUS NLP Parsing]", { raw, normalized: cmd });
+
+      // 1. MAPEAMENTO DE CÔMODOS (Prioriza nomes compostos como 'banho suite' antes de 'banheiro')
+      const ROOM_MAP = [
+        { key: 'banhosuite', label: 'Banho Suíte', alias: ['banho suite', 'banho da suite', 'banheiro da suite', 'banheiro suite'] },
+        { key: 'banheiro', label: 'Banheiro', alias: ['banheiro', 'banheiro social', 'lavabo', 'wc'] },
+        { key: 'suite', label: 'Suíte Master', alias: ['suite', 'suite master', 'quarto de casal', 'quarto casal', 'casal'] },
+        { key: 'sala', label: 'Sala / Jantar', alias: ['sala', 'sala de estar', 'sala de jantar', 'estar', 'jantar', 'living'] },
+        { key: 'cozinha', label: 'Cozinha', alias: ['cozinha', 'cozinha gourmet', 'copa'] },
+        { key: 'quarto1', label: 'Quarto 1', alias: ['quarto 1', 'quarto um', 'primeiro quarto', 'quarto solteiro'] },
+        { key: 'quarto2', label: 'Quarto 2', alias: ['quarto 2', 'quarto dois', 'segundo quarto', 'quarto de visitas', 'quarto visitas'] },
+        { key: 'escritorio', label: 'Escritório', alias: ['escritorio', 'office', 'home office'] },
+        { key: 'lavanderia', label: 'Lavanderia', alias: ['lavanderia', 'area de servico', 'lavanderia'] }
+      ];
+
+      let detectedRoom = null;
+      for (const r of ROOM_MAP) {
+        if (r.alias.some(a => cmd.includes(a))) {
+          detectedRoom = r;
+          break;
+        }
+      }
+
+      // Verifica se o usuário pediu especificamente "todas as luzes" ou "a casa toda"
+      const isAllRooms = cmd.includes("todas") || cmd.includes("todos") || cmd.includes("casa toda") || cmd.includes("toda a casa") || cmd.includes("geral") || cmd.includes("tudo");
+
+      // 2. DETECÇÃO DE AÇÃO (LIGAR / DESLIGAR)
+      const isTurnOff = cmd.includes("desligar") || cmd.includes("apagar") || cmd.includes("fechar") || cmd.includes("trancar") || cmd.includes("bloquear") || cmd.includes("cortar") || cmd.includes("desativar");
+      const isTurnOn = cmd.includes("ligar") || cmd.includes("acender") || cmd.includes("abrir") || cmd.includes("destrancar") || cmd.includes("desbloquear") || cmd.includes("ativar");
+
+      // 3. CENAS INTELIGENTES GLOBAIS
+      if (cmd.includes("dormir") || cmd.includes("boa noite")) {
+        executeScene('sleep');
+        feedback = "Modo Dormir ativado. Luzes apagadas, portas trancadas e clima noturno preparado. Tenha uma boa noite!";
+        actionTaken = true;
+      } else if (cmd.includes("sair") || cmd.includes("fora de casa") || cmd.includes("vou sair")) {
+        executeScene('away');
+        feedback = "Modo Fora de Casa ativado. Todos os dispositivos desativados e sentinela da IA ligado.";
+        actionTaken = true;
+      } else if (cmd.includes("cinema") || cmd.includes("filme")) {
+        executeScene('cinema');
+        feedback = "Modo Cinema preparado: Iluminação acolhedora e climatização a 22 graus na Sala.";
+        actionTaken = true;
+      } else if (cmd.includes("seguranca maxima") || cmd.includes("alerta total")) {
+        executeScene('security');
+        feedback = "Segurança Máxima ativada: Todos os acessos travados e monitoramento total ligado.";
+        actionTaken = true;
+      }
+
+      // 4. CONTROLE DE ILUMINAÇÃO (COM PRECISÃO POR CÔMODO)
+      else if (cmd.includes("luz") || cmd.includes("luzes") || cmd.includes("lampada") || cmd.includes("iluminacao")) {
+        if (detectedRoom && !isAllRooms) {
+          // Ação em CÔMODO ESPECÍFICO (ex: "desligar luz do banheiro")
+          const rKey = detectedRoom.key;
+          const targetState = isTurnOff ? "Desligada" : "Ligada";
+          if (rooms[rKey].sensors.luz !== undefined) {
+            rooms[rKey].sensors.luz = targetState;
+            logActivity('user', `Comando IA: ${detectedRoom.label}`, `Luz ${targetState}`);
+            feedback = `A luz do(a) ${detectedRoom.label} foi ${isTurnOff ? 'desligada' : 'ligada'} com sucesso.`;
+            showToast(`Luz do(a) ${detectedRoom.label}: ${targetState}`, "💡");
+            refreshAll(rKey);
+            window.DOMUS_SUPABASE.syncCommand(rKey, 'luz', targetState);
+            actionTaken = true;
+          } else {
+            feedback = `O ambiente ${detectedRoom.label} não possui lâmpada controlável individualmente.`;
+            actionTaken = true;
+          }
+        } else {
+          // Ação GLOBAL em todas as luzes
+          const turnOn = isTurnOn && !isTurnOff;
+          masterControlLights(turnOn);
+          feedback = `Todas as luzes da residência foram ${turnOn ? 'acesas' : 'apagadas'}.`;
+          actionTaken = true;
+        }
+      }
+
+      // 5. FECHADURAS, PORTAS E JANELAS
+      else if (cmd.includes("porta") || cmd.includes("tranca") || cmd.includes("fechadura")) {
+        const isClose = isTurnOff || cmd.includes("trancar");
+        masterControlAccess(isClose ? 'fechar' : 'abrir');
+        feedback = `A porta principal foi ${isClose ? 'trancada com segurança' : 'aberta'}.`;
+        actionTaken = true;
+      } else if (cmd.includes("janela")) {
+        const isClose = isTurnOff || cmd.includes("fechar");
+        rooms.sala.sensors.janela = isClose ? "Fechada" : "Aberta";
+        showToast(`Janela da Sala: ${isClose ? 'Fechada' : 'Aberta'}`, "🪟");
+        logActivity('user', "Comando IA: Janela", `Janela da sala ${isClose ? 'fechada' : 'aberta'}`);
+        refreshAll('sala');
+        feedback = `Janela da sala ${isClose ? 'fechada' : 'aberta'}.`;
+        actionTaken = true;
+      }
+
+      // 6. CLIMATIZAÇÃO / AR-CONDICIONADO
+      else if (cmd.includes("ar") || cmd.includes("arcondicionado") || cmd.includes("clima") || cmd.includes("temperatura")) {
+        // Verifica se o usuário pediu uma temperatura específica (ex: "ar em 21 graus")
+        const matchDegrees = cmd.match(/\b([1-2][0-9]|30)\b/);
+        if (matchDegrees) {
+          const tempNum = parseFloat(matchDegrees[1]);
+          rooms.sala.sensors.temp = tempNum;
+          rooms.sala.sensors.consumo = 1.2;
+          refreshAll('sala');
+          logActivity('user', "Comando IA: Clima", `Temperatura ajustada para ${tempNum}°C`);
+          feedback = `Climatização regulada para ${tempNum} graus Celsius.`;
+          actionTaken = true;
+        } else if (isTurnOff) {
+          masterControlClimate('desligar');
+          feedback = "Ar-condicionado e climatização geral desligados.";
+          actionTaken = true;
+        } else {
+          masterControlClimate('conforto');
+          feedback = "Modo conforto ativado: Ar-condicionado regulado a 23 graus.";
+          actionTaken = true;
+        }
+      }
+
+      // 7. SISTEMA HIDRÁULICO / VÁLVULA DE ÁGUA
+      else if (cmd.includes("agua") || cmd.includes("valvula") || cmd.includes("registro")) {
+        const isClose = isTurnOff || cmd.includes("fechar") || cmd.includes("cortar");
+        masterControlWater(isClose ? 'fechar' : 'abrir');
+        feedback = `Válvula geral de água ${isClose ? 'bloqueada em corte de segurança' : 'aberta'}.`;
+        actionTaken = true;
+      }
+
+      // 8. MÁQUINA DE LAVAR (LAVANDERIA)
+      else if (cmd.includes("maquina") || cmd.includes("lavadora") || cmd.includes("lavar roupa")) {
+        const isStart = isTurnOn || cmd.includes("iniciar");
+        rooms.lavanderia.sensors.maquina = isStart ? "Lavando" : "Parada";
+        rooms.lavanderia.sensors.agua = isStart ? "12 L/h" : "0 L/h";
+        refreshAll('lavanderia');
+        logActivity('user', "Comando IA: Lavanderia", `Máquina ${isStart ? 'iniciada' : 'parada'}`);
+        feedback = `Máquina de lavar ${isStart ? 'iniciada' : 'parada'} na Lavanderia.`;
+        showToast(`Lavanderia: Máquina ${rooms.lavanderia.sensors.maquina}`, "🌀");
+        actionTaken = true;
+      }
+
+      // 9. CONSULTAS E STATUS DA RESIDÊNCIA
+      else if (cmd.includes("consumo") || cmd.includes("energia") || cmd.includes("gasto")) {
+        const ranked = ENERGY_ROOMS.map(id => ({ name: rooms[id].name, v: parseFloat(energyVal(id)) })).sort((a, b) => b.v - a.v);
+        const atual = ranked.reduce((s, r) => s + r.v, 0);
+        const custo = ((atual * 24 * 30) * 0.85).toFixed(2);
+        feedback = `O consumo elétrico atual é de ${atual.toFixed(1)} kWh, com projeção mensal de R$ ${custo}. O maior consumidor agora é a ${ranked[0].name}.`;
+        actionTaken = true;
+      } else if (cmd.includes("quanto gastou de agua") || cmd.includes("consumo de agua")) {
+        const curW = parseFloat(rooms.banheiro.sensors.agua) + parseFloat(rooms.banhosuite.sensors.agua);
+        feedback = `O consumo de água registrado hoje é de ${curW} litros. Válvula principal está ${rooms.banheiro.sensors.valvula}.`;
+        actionTaken = true;
+      } else if (cmd.includes("score") || cmd.includes("pontuacao") || cmd.includes("domus score")) {
+        const { overall } = computeScore();
+        feedback = `O DOMUS Score atual da residência é de ${overall} de 100 pontos.`;
+        actionTaken = true;
+      } else if (cmd.includes("alerta") || cmd.includes("anomalia") || cmd.includes("problema")) {
+        const alerts = computeAlerts();
+        if (alerts.length) {
+          feedback = `Atenção: Há ${alerts.length} alerta(s) ativo(s): ${alerts.map(a => `${a.room}: ${a.msg}`).join(', ')}.`;
+        } else {
+          feedback = "Nenhum alerta ativo no momento. Todos os cômodos estão operando em estado normal.";
+        }
+        actionTaken = true;
+      } else if (detectedRoom && (cmd.includes("tem alguem") || cmd.includes("presenca") || cmd.includes("ocupado"))) {
+        const pres = rooms[detectedRoom.key].sensors.presenca || "Não monitorada";
+        feedback = `No(a) ${detectedRoom.label}, a presença está: ${pres}.`;
+        actionTaken = true;
+      } else if (detectedRoom && cmd.includes("temperatura")) {
+        const temp = rooms[detectedRoom.key].sensors.temp || "23.0";
+        feedback = `A temperatura medida no(a) ${detectedRoom.label} é de ${temp} graus.`;
+        actionTaken = true;
+      }
+
+      // 10. FALLBACK CONTEXTUAL INTELIGENTE
+      if (!actionTaken) {
+        feedback = `Entendi "${raw}". Você pode tentar comandos como "Desligar luz do banheiro", "Ligar luz da sala", "Trancar a casa", "Qual o consumo de energia?" ou "Modo dormir".`;
+      }
+
+      // Atualiza a interface, fala e notifica
+      document.getElementById('voicePrompt').textContent = feedback;
+      document.getElementById('voiceTranscript').textContent = `Comando: "${raw}"`;
+      triggerVoiceSpeak(feedback);
+      if (actionTaken) showToast(feedback, "🤖");
+    }
+
+    function sendTextCommand() {
+      const inp = document.getElementById('voiceTextInput');
+      if (!inp || !inp.value.trim()) return;
+      executeVoiceCommand(inp.value.trim());
+      inp.value = '';
+    }
+
+    // ========================================================
+    // 9. LABORATÓRIO DA IA / SIMULAÇÕES (PARA A BANCA)
+    // ========================================================
+    function toggleSandbox(e) {
+      if (e && e.target !== e.currentTarget && e.target.id !== 'sandboxDrawer') return;
+      document.getElementById('sandboxDrawer').classList.toggle('active');
+    }
+    function buildSimButtons() {
+      const g = document.getElementById('simGrid');
+      if (!g) return;
+      g.innerHTML = Object.entries(events).map(([id, e]) => `
+    <button onclick="applySimEvent('${id}')">
+      <span>▶</span> ${rooms[id].name}: ${e.label}
+    </button>
+  `).join('');
+    }
+    function applySimEvent(id) {
+      const e = events[id];
+      rooms[id].status = e.status;
+      Object.assign(rooms[id].sensors, e.sensors);
+      logActivity('alert', `Injeção de Teste: ${rooms[id].name}`, e.label);
+      showToast(`Simulação injetada no(a) ${rooms[id].name}`, "🧪");
+      refreshAll(id);
+    }
+    function restaurarCasa() {
+      Object.keys(rooms).forEach(id => {
+        rooms[id].status = defaults[id].status;
+        rooms[id].sensors = JSON.parse(JSON.stringify(defaults[id].sensors));
+      });
+      logActivity('user', "Restauração do Sistema", "Todos os cômodos retornaram ao estado padrão");
+      showToast("Casa restaurada ao estado original!");
+      refreshAll();
+    }
+
+    // Relógio em tempo real
+    function updateClocks() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('pt-BR');
+      const shortTime = timeStr.slice(0, 5);
+      const hClock = document.getElementById('headerClock');
+      if (hClock) hClock.textContent = shortTime;
+      document.querySelectorAll('.live-clock').forEach(el => el.textContent = timeStr);
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    // ========================================================
+    // 10. INICIALIZAÇÃO GERAL
+    // ========================================================
+    buildPlant2D();
+    buildScene3D();
+    refreshAll();
+    buildSimButtons();
+    renderTimeline();
+    setCam('geral');
+    resize3D();
+    animate();
+    setMode('2d');
+  </script>
+</body>
+
+</html>
