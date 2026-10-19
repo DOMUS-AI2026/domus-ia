@@ -1,0 +1,6 @@
+/service-worker.js
+  Cache-Control: no-cache
+/manifest.json
+  Cache-Control: no-cache
+/domus-html.html
+  Cache-Control: no-cache
