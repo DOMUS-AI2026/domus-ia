@@ -57,7 +57,7 @@
       background: var(--bg);
       color: var(--txt);
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
+      min-height: calc(100vh / var(--a11y-z, 1));
       overflow-x: hidden;
       padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px) + 20px);
     }
@@ -183,6 +183,84 @@
       border-color: var(--cyan);
       box-shadow: 0 0 12px var(--cyan-glow);
     }
+
+    /* ===== Modo Acessível ===== */
+    .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    /* --a11y-z: medidas em "% da tela" (vh) são divididas pelo zoom para não passarem do tamanho da tela */
+    html.a11y-font-1 { --a11y-z: 1.15; }
+    html.a11y-font-2 { --a11y-z: 1.3; }
+    html.a11y-font-1 body { zoom: 1.15; }
+    html.a11y-font-2 body { zoom: 1.3; }
+    html.a11y-contrast {
+      --bg: #000; --surface: #000; --surface-card: #0a0a0a; --surface-elevated: #141414;
+      --txt: #ffffff; --muted: #e2e8f0; --subtle: #cbd5e1;
+      --line: rgba(255, 255, 255, 0.45); --line-strong: #22e6d0;
+      --cyan: #3dfff0; --yellow: #ffd84d; --red: #ff6b6b; --green: #4dff9a;
+    }
+    html.a11y-contrast .panel, html.a11y-contrast .lab-sec, html.a11y-contrast .cctv-card { border-width: 2px; }
+    html.a11y-contrast .badge { outline: 1px solid currentColor; }
+    html.a11y-contrast .room-bg { stroke-width: 4 !important; }
+    html.a11y-big .btn-icon { width: 48px; height: 48px; font-size: 19px; }
+    html.a11y-big button { min-height: 46px; }
+    html.a11y-big .lab-pill { min-width: 132px; padding: 11px 14px; font-size: 13px; }
+    html.a11y-big .nav-item { font-size: 13px; }
+    html.a11y-big .nav-icon { font-size: 24px; }
+    html.a11y-big .row { padding-top: 12px; padding-bottom: 12px; }
+    html.a11y-calm *, html.a11y-calm *::before, html.a11y-calm *::after {
+      animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+    }
+    :focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+    .a11y-flash { position: fixed; inset: 0; z-index: 260; pointer-events: none; border: 10px solid transparent; display: none; }
+    .a11y-flash.on { display: block; animation: a11yFlash 1s ease-in-out 3; }
+    @keyframes a11yFlash { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    html.a11y-calm .a11y-flash.on { animation: none !important; opacity: 1; }
+    .a11y-sheet {
+      display: none; position: fixed; inset: 0; z-index: 245; background: rgba(0, 0, 0, 0.75);
+      align-items: flex-end; justify-content: center;
+    }
+    .a11y-sheet.active { display: flex; }
+    .a11y-panel {
+      width: 100%; max-width: 520px; max-height: calc(92vh / var(--a11y-z, 1)); overflow-y: auto;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 22px 22px 0 0;
+      padding: 18px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+    .a11y-panel .sandbox-header { position: sticky; top: -18px; z-index: 2; background: var(--surface); padding-top: 18px; margin-top: -18px; }
+    .a11y-seg { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+    .a11y-seg button { padding: 8px 12px; font-size: 13px; }
+
+    /* ===== Emergência (SOS) ===== */
+    .sos-btn { width: 100%; background: linear-gradient(135deg, #ff3b3b, #b3001b) !important; color: #fff !important; font-size: 16px; font-weight: 800; padding: 14px; border-radius: 14px; margin: 4px 0 6px; box-shadow: 0 0 22px rgba(255, 59, 59, 0.45); }
+    .sos-screen { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(40, 0, 6, 0.96); overflow-y: auto; padding: 18px 16px calc(28px + env(safe-area-inset-bottom, 0px)); }
+    .sos-screen.active { display: block; }
+    .sos-card { max-width: 520px; margin: 0 auto; color: #fff; }
+    .sos-card h2 { font-size: 22px; margin-bottom: 4px; }
+    .sos-sub { font-size: 13px; color: #ffc9c9; margin-bottom: 14px; line-height: 1.5; }
+    .sos-count { font-size: 64px; font-weight: 800; text-align: center; margin: 6px 0; }
+    .sos-list { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 14px; padding: 6px 14px; margin-bottom: 14px; }
+    .sos-list .sos-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 14px; }
+    .sos-list .sos-item:first-child { border-top: none; }
+    .sos-list small { display: block; color: #ffc9c9; font-size: 11px; }
+    .sos-call { display: inline-flex; align-items: center; justify-content: center; min-width: 92px; padding: 10px 14px; border-radius: 12px; background: #fff; color: #b3001b; font-weight: 800; font-size: 16px; text-decoration: none; }
+    .sos-actions { display: flex; flex-direction: column; gap: 8px; }
+    .sos-actions button { width: 100%; padding: 13px; font-size: 14px; }
+    .sos-actions .sos-light { background: #fff !important; color: #b3001b !important; }
+    .sos-actions .sos-ghost { background: transparent !important; color: #fff !important; border: 1px solid rgba(255, 255, 255, 0.5); }
+
+    /* ===== Clima lá fora ===== */
+    .clima-top { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .clima-temp { font-size: 38px; font-weight: 800; line-height: 1; }
+    .clima-desc { font-size: 13px; font-weight: 600; }
+    .clima-meta { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+    .clima-ia {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(140, 82, 255, 0.10);
+      border: 1px solid rgba(140, 82, 255, 0.30);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .clima-ia button { margin-top: 10px; width: 100%; font-size: 12px; padding: 9px; }
 
     /* ===== Login (autenticação simulada na demonstração) ===== */
     .login-screen {
@@ -345,7 +423,7 @@
     }
 
     .view-box.d3 {
-      height: 50vh;
+      height: calc(50vh / var(--a11y-z, 1));
       min-height: 330px;
     }
 
@@ -1770,7 +1848,8 @@
       </form>
 
       <button class="login-switch" id="loginSwitch" type="button" onclick="authShowForm(authForm === 'morador' ? 'tecnico' : 'morador')">🔧 Acesso técnico</button>
-      <p class="login-foot">Ambiente de demonstração · autenticação simulada</p>
+      <button class="login-switch" type="button" onclick="a11yOpen()" aria-label="Opções de acessibilidade">♿ Acessibilidade</button>
+      <p class="login-foot">© 2026 DOMUS AI. Todos os direitos reservados.</p>
     </div>
   </div>
   <script>
@@ -1794,22 +1873,46 @@
       </div>
       <div class="header-actions">
         <!-- Botão de Modo Demonstração / Sandbox (Discreto para a faculdade) -->
-        <button class="btn-icon" id="labBtn" style="display:none;" onclick="toggleSandbox()" title="Laboratório da IA (Simulações)">🧪</button>
-        <button class="btn-icon" onclick="openVoiceAssistant()" title="Comando de Voz">🎙️</button>
-        <button class="btn-icon user-btn" id="userBtn" onclick="toggleUserMenu()" title="Minha conta">··</button>
+        <button class="btn-icon" id="labBtn" style="display:none;" onclick="toggleSandbox()" title="Laboratório da IA (Simulações)" aria-label="Laboratório da IA">🧪</button>
+        <button class="btn-icon" onclick="openVoiceAssistant()" title="Comando de Voz" aria-label="Comando de voz">🎙️</button>
+        <button class="btn-icon user-btn" id="userBtn" onclick="toggleUserMenu()" title="Minha conta" aria-label="Minha conta" aria-haspopup="true">··</button>
       </div>
     </div>
   </header>
+
+  <!-- Acessibilidade: região lida por leitores de tela + flash visual de alerta -->
+  <div id="a11yLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="a11yLiveUrgent" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+  <div id="a11yFlash" class="a11y-flash" aria-hidden="true"></div>
+  <div class="a11y-sheet" id="a11ySheet" role="dialog" aria-modal="true" aria-labelledby="a11yTitle" onclick="if(event.target===this)a11yClose()">
+    <div class="a11y-panel">
+      <div class="sandbox-header">
+        <div>
+          <h3 id="a11yTitle" style="font-size:16px;">♿ Acessibilidade</h3>
+          <p style="font-size:11px;color:var(--muted);">Ajustes salvos neste aparelho</p>
+        </div>
+        <button class="secondary" style="padding:6px 12px;font-size:12px;" onclick="a11yClose()" aria-label="Fechar acessibilidade">✕ Fechar</button>
+      </div>
+      <div class="lab-body" id="a11yBody" style="padding:0;"></div>
+    </div>
+  </div>
+
+  <!-- Emergência (SOS) -->
+  <div class="sos-screen" id="sosScreen" role="alertdialog" aria-modal="true" aria-labelledby="sosTitle">
+    <div class="sos-card" id="sosBody"></div>
+  </div>
 
   <!-- Menu da conta -->
   <div class="user-menu" id="userMenu">
     <b id="userMenuName">—</b>
     <small id="userMenuSub">—</small>
+    <button class="secondary" id="notifyBtn" style="margin-bottom:8px;" onclick="notifyEnable()">🔔 Ativar notificações</button>
+    <button class="secondary" style="margin-bottom:8px;" onclick="a11yOpen()">♿ Acessibilidade</button>
     <button class="secondary" onclick="authLogout()">⎋ Sair</button>
   </div>
 
   <!-- Notificações Toast -->
-  <div class="toast-container" id="toastContainer"></div>
+  <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
 
   <!-- ========================================================
      ABA 1: INÍCIO (GÊMEO DIGITAL 2D / 3D & CONTROLES)
@@ -1898,6 +2001,9 @@
     <!-- DOMUS Score Resumo -->
     <div class="panel" id="scoreCard"></div>
 
+    <!-- Clima real lá fora (Open-Meteo) -->
+    <div class="panel" id="climaCard"></div>
+
     <!-- Alert Center -->
     <div class="panel" id="alertCenter"></div>
 
@@ -1929,6 +2035,21 @@
         <div class="metric-val" id="metricWaterTotal">0 L</div>
         <div class="metric-sub">Válvula: <span id="metricValveState">Aberta</span></div>
       </div>
+    </div>
+
+    <!-- Relatório mensal em PDF -->
+    <div class="panel" id="reportCard">
+      <div class="panel-header">
+        <h3 class="panel-title"><span>📄</span> RELATÓRIO MENSAL</h3>
+        <span class="badge normal">PDF</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Resumo do mês da residência: consumo e custos,
+        evolução dos últimos meses, alertas, ações da IA e recomendações.</p>
+      <div class="lab-actions" style="padding-top:0;">
+        <button onclick="relatorioGerar('baixar')">📄 Baixar PDF</button>
+        <button class="secondary" id="reportShareBtn" style="display:none;" onclick="relatorioGerar('compartilhar')">↗ Compartilhar</button>
+      </div>
+      <div id="reportStatus" style="font-size:11px;color:var(--muted);margin-top:8px;min-height:14px;"></div>
     </div>
 
     <!-- Painel DOMUS ENERGY Detalhado -->
@@ -1976,7 +2097,7 @@
           <h3 id="modalCamTitle" style="font-size:16px;">Câmera Ao Vivo</h3>
           <p id="modalCamSub" style="font-size:11px;color:var(--muted);">CAM-01 · Transmissão Criptografada</p>
         </div>
-        <button class="secondary" style="padding:4px 10px;font-size:12px;" onclick="closeCctvModal()">✕ Fechar</button>
+        <button class="secondary" style="padding:4px 10px;font-size:12px;" onclick="closeCctvModal()" aria-label="Fechar câmera">✕ Fechar</button>
       </div>
       <img id="modalCamImg" class="cctv-modal-img" src="assets/cam_sala.jpg" alt="Câmera">
       <div class="cctv-modal-footer">
@@ -2213,7 +2334,7 @@
     </button>
 
     <!-- Botão Central de Destaque para Voz -->
-    <div class="nav-voice-btn" id="navVoiceBtn" onclick="openVoiceAssistant()" title="Comando de Voz DOMUS">
+    <div class="nav-voice-btn" id="navVoiceBtn" onclick="openVoiceAssistant()" title="Comando de Voz DOMUS" role="button" tabindex="0" aria-label="Comando de voz">
       🎙️
     </div>
 
@@ -2349,7 +2470,7 @@
         test: s => s.temp !== undefined && parseFloat(s.temp) >= 27,
         fix: id => { rooms[id].sensors.temp = defaults[id].sensors.temp; } },
       { code: 'light', level: 'atencao', msg: 'Luz ligada sem presença', action: 'Desligar luz',
-        test: s => s.luz === "Ligada" && s.presenca === "Não detectada",
+        test: s => s.luz === "Ligada" && s.presenca === "Não detectada" && !sosEmCurso(), // na emergência as luzes ficam acesas de propósito
         fix: id => { rooms[id].sensors.luz = "Desligada"; } },
       { code: 'water', level: 'atencao', msg: 'Consumo de água elevado', action: 'Verificar consumo',
         test: (s, id) => isDia(s.agua) && waterRatio(id, s.agua) >= WATER_WARN_RATIO,
@@ -2467,6 +2588,8 @@
       Object.entries(rooms).forEach(([id, r]) => {
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("class", "room-group");
+        g.setAttribute("role", "button");
+        g.setAttribute("tabindex", "0");
         g.onclick = () => selectRoom(id);
 
         // Retângulo base com imagem de câmera (ou pattern) de fundo
@@ -2553,6 +2676,7 @@
 
         svg.appendChild(g);
         svgEls[id].rect = rect;
+        svgEls[id].g = g;
       });
     }
 
@@ -2562,6 +2686,7 @@
       el.rect.setAttribute("fill", fillColor(r.status));
       el.rect.setAttribute("stroke", id === selectedRoom && !selectedSensor ? "#22e6d0" : strokeColor(r.status));
       el.rect.setAttribute("stroke-width", id === selectedRoom && !selectedSensor ? 4 : 2);
+      if (el.g) el.g.setAttribute("aria-label", roomA11yLabel(id));
       Object.entries(r.sensors).forEach(([k, v]) => {
         const dot = el.sensorDots[k];
         if (!dot) return;
@@ -2698,6 +2823,8 @@
       scanAutomations();
       renderLab();
       renderActions();
+      renderClima();
+      notifyCheck();
     }
 
     function selectRoom(id) {
@@ -2890,7 +3017,7 @@
     // Render DOMUS Automation
     let automationRules = [
       { id: 'valve', enabled: true, keys: ['vazamento'], label: "Vazamento detectado → fechar válvula", check: () => Object.keys(rooms).filter(id => rooms[id].sensors.vazamento === "Detectado"), action: id => { rooms[id].sensors.valvula = "Fechada"; rooms[id].sensors.vazamento = "Não detectado"; rooms[id].sensors.agua = defaults[id].sensors.agua;  } },
-      { id: 'light', enabled: true, keys: ['luz', 'presenca'], label: "Sem presença por 15 min → desligar luz", check: () => Object.keys(rooms).filter(id => rooms[id].sensors.luz === "Ligada" && rooms[id].sensors.presenca === "Não detectada"), action: id => { rooms[id].sensors.luz = "Desligada";  } },
+      { id: 'light', enabled: true, keys: ['luz', 'presenca'], label: "Sem presença por 15 min → desligar luz", check: () => sosEmCurso() ? [] : Object.keys(rooms).filter(id => rooms[id].sensors.luz === "Ligada" && rooms[id].sensors.presenca === "Não detectada"), action: id => { rooms[id].sensors.luz = "Desligada";  } },
       { id: 'clima', enabled: true, keys: ['temp', 'presenca'], label: "Temp. > 27°C com presença → climatização", check: () => Object.keys(rooms).filter(id => rooms[id].sensors.temp !== undefined && parseFloat(rooms[id].sensors.temp) > 27 && rooms[id].sensors.presenca === "Detectada"), action: id => { rooms[id].sensors.temp = defaults[id].sensors.temp;  } }
     ];
     // Tempo de espera de cada regra. "Sem presença por 15 min" espera 15 minutos de verdade.
@@ -3191,7 +3318,7 @@
       grid.innerHTML = CAM_ORDER.map(id => {
         const r = rooms[id], v = CAM_VIEW[id], h = v.hud;
         return `
-      <div class="cctv-card" onclick="openCam('${id}')">
+      <div class="cctv-card" id="camCard-${id}" onclick="openCam('${id}')" role="button" tabindex="0" aria-label="Câmera ${r.camTag}, ${v.title}">
         <img id="camImg-${id}" src="${camSrc(id)}" alt="${v.title}" decoding="async">
         <div class="cctv-overlay">
           <div class="cctv-top">
@@ -3230,6 +3357,8 @@
           if (img.__src !== src) { img.src = src; img.__src = src; }
           img.style.filter = priv ? PRIV_FILTER : '';
         }
+        const card = document.getElementById('camCard-' + id);
+        if (card && card.setAttribute) card.setAttribute('aria-label', `Câmera ${rooms[id].camTag}, ${CAM_VIEW[id].title}. ${priv ? 'Privacidade ativa, presença detectada' : st.text.replace(/^[●⚠]\s*IA:\s*/, '')}`);
         const pv = document.getElementById('camPriv-' + id);
         if (pv) pv.style.display = priv ? 'flex' : 'none';
         // mesma foto na planta 2D
@@ -3537,12 +3666,26 @@
         (detectedRoom && /\btemperatura\b/.test(cmd) && !/\d/.test(cmd))
       );
 
+      // 2.4 EMERGÊNCIA: "socorro", "emergência", "preciso de ajuda" → abre o SOS com contagem (dá para cancelar)
+      const isSos = /\b(socorro|emergencia|sos|preciso de ajuda|chamar ajuda)\b/.test(cmd) && !/\b(numeros?|cancelar|encerrar)\b/.test(cmd);
+      const isSosNumeros = /\bnumeros? de emergencia\b/.test(cmd);
       // 2.5 CÂMERAS DE SEGURANÇA: "ver câmera da cozinha", "abrir a central de câmeras", "fechar câmera"
       // (vem antes das cenas: "sair da câmera" não pode ativar o modo Fora de Casa)
       const isCameraCmd = /\b(camera|cameras|cftv)\b/.test(cmd);
       const isCameraClose = isCameraCmd && /\b(fechar|feche|fecha|sair|encerrar|parar)\b/.test(cmd);
 
-      if (isCameraClose) {
+      if (isSos) {
+        sosAbrir('voz');
+        feedback = 'Emergência: vou acender as luzes, destrancar a porta e avisar seus contatos em 5 segundos. Diga ou toque em cancelar para interromper.';
+        actionTaken = true;
+      } else if (isSosNumeros) {
+        feedback = 'Números de emergência: SAMU 192, Bombeiros 193, Polícia 190, Defesa Civil 199, Central da Mulher 180 e CVV 188. Use o botão de emergência para ligar.';
+        actionTaken = true;
+      } else if (/\bcancelar\b/.test(cmd) && sosEstado === 'contagem') {
+        sosCancelar();
+        feedback = 'Emergência cancelada.';
+        actionTaken = true;
+      } else if (isCameraClose) {
         closeCctvModal();
         feedback = "Câmera fechada.";
         actionTaken = true;
@@ -3559,6 +3702,22 @@
         // fecha o painel de voz (sem cortar a fala) para mostrar a central
         setTimeout(() => { const vs = document.getElementById('voiceSheet'); if (vs) vs.classList.remove('active'); }, 900);
         feedback = `Abrindo a central de câmeras: ${CAM_ORDER.length} câmeras ativas.`;
+        actionTaken = true;
+      }
+
+      // 2.6 ACESSIBILIDADE POR VOZ: "aumentar o texto", "ativar alto contraste", "abrir acessibilidade"
+      else if (/\b(texto|letra|letras|fonte)\b/.test(cmd) && /\b(aumentar|aumenta|maior|diminuir|diminui|menor|normal)\b/.test(cmd)) {
+        const mais = /\b(aumentar|aumenta|maior)\b/.test(cmd);
+        a11ySet('fonte', /\bnormal\b/.test(cmd) ? 0 : A11Y.fonte + (mais ? 1 : -1));
+        feedback = `Tamanho do texto: ${['normal', 'grande', 'muito grande'][A11Y.fonte]}.`;
+        actionTaken = true;
+      } else if (/\bcontraste\b/.test(cmd)) {
+        a11ySet('contraste', !isTurnOff);
+        feedback = `Alto contraste ${A11Y.contraste ? 'ativado' : 'desativado'}.`;
+        actionTaken = true;
+      } else if (/\b(acessibilidade|modo acessivel)\b/.test(cmd)) {
+        a11yOpen();
+        feedback = 'Abrindo as opções de acessibilidade.';
         actionTaken = true;
       }
 
@@ -3582,7 +3741,10 @@
       }
 
       // 3.5 CONSULTAS E STATUS (têm prioridade sobre as ações; só valem para perguntas)
-      else if (isInfoRequest && cmd.includes("agua")) {
+      else if ((isInfoRequest || /\b(vai chover|previsao)\b/.test(cmd)) && /\b(la fora|chover|chuva|previsao|tempo|clima)\b/.test(cmd) && !/\bclimatizacao\b/.test(cmd)) {
+        feedback = climaFala();
+        actionTaken = true;
+      } else if (isInfoRequest && cmd.includes("agua")) {
         const w = waterSummary();
         feedback = `O consumo de água registrado hoje é de ${fmt(w.hoje, 0)} litros, com projeção de ${fmt(w.m3Mes, 1)} metros cúbicos no mês, cerca de ${brl(w.custoMes)}. A válvula principal está ${rooms.banheiro.sensors.valvula}.`;
         actionTaken = true;
@@ -4076,6 +4238,8 @@
       if (!r || r.source === SUPA.clientId) return;
       const item = supaLogFromRow(r);
       if (item._t <= SUPA.logsClearedAt || supaIsDupLog(item.title, item.desc, item._t)) return;
+      if (item.title === SOS_TITULO_LOG) { sosRemoto = true; sosAvisoRemoto(item.desc); refreshAll(); }
+      if (item.title === 'Emergência encerrada' && sosRemoto) { sosRemoto = false; refreshAll(); }
       activityLogs.unshift(item);
       if (activityLogs.length > 15) activityLogs.pop();
       renderTimeline();
@@ -4299,6 +4463,528 @@
 
 
     // ========================================================
+    // 9.2 MODO ACESSÍVEL — texto maior, alto contraste, botões maiores, leitura de alertas em voz alta,
+    // alerta visual (tela pisca) e menos animações. Salvo neste aparelho.
+    // ========================================================
+    const A11Y_KEY = 'domus_a11y';
+    const A11Y_DEFAULT = { fonte: 0, contraste: false, botoes: false, voz: false, flash: false, calmo: false };
+    let A11Y = Object.assign({}, A11Y_DEFAULT);
+    function a11yLoad() {
+      let v = null;
+      try { v = JSON.parse(localStorage.getItem(A11Y_KEY) || 'null'); } catch (e) { }
+      A11Y = Object.assign({}, A11Y_DEFAULT, v && typeof v === 'object' ? v : {});
+      A11Y.fonte = [0, 1, 2].includes(Number(A11Y.fonte)) ? Number(A11Y.fonte) : 0;
+      if (!v) { try { A11Y.calmo = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches === true); } catch (e) { } }
+    }
+    function a11ySave() { try { localStorage.setItem(A11Y_KEY, JSON.stringify(A11Y)); } catch (e) { } }
+    function a11yApply() {
+      const h = document.documentElement;
+      if (!h || !h.classList) return;
+      h.classList.remove('a11y-font-1', 'a11y-font-2');
+      if (A11Y.fonte) h.classList.add('a11y-font-' + A11Y.fonte);
+      h.classList[A11Y.contraste ? 'add' : 'remove']('a11y-contrast');
+      h.classList[A11Y.botoes ? 'add' : 'remove']('a11y-big');
+      h.classList[A11Y.calmo ? 'add' : 'remove']('a11y-calm');
+    }
+    function a11ySet(key, val) {
+      if (!(key in A11Y_DEFAULT)) return;
+      A11Y[key] = key === 'fonte' ? Math.max(0, Math.min(2, Number(val) || 0)) : !!val;
+      a11ySave(); a11yApply(); a11yRender();
+      if (key === 'voz' && A11Y.voz) a11yFalar('Leitura de alertas em voz alta ativada.');
+      if (key === 'flash' && A11Y.flash) a11yPiscar('atencao');
+    }
+    function a11yToggle(key) { a11ySet(key, !A11Y[key]); }
+    function a11yFalar(texto) {
+      if (typeof isRecording !== 'undefined' && isRecording) return; // não fala por cima do microfone
+      try { triggerVoiceSpeak(texto); } catch (e) { }
+    }
+    let a11yFlashTimer = null;
+    function a11yPiscar(nivel) {
+      const f = document.getElementById('a11yFlash');
+      if (!f || !f.classList) return;
+      f.style.borderColor = nivel === 'critico' ? 'var(--red)' : 'var(--yellow)';
+      f.style.boxShadow = `inset 0 0 60px ${nivel === 'critico' ? 'rgba(255,77,77,0.55)' : 'rgba(245,197,66,0.45)'}`;
+      f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+      clearTimeout(a11yFlashTimer);
+      a11yFlashTimer = setTimeout(() => f.classList.remove('on'), 3200);
+    }
+    // anúncio para leitores de tela (TalkBack/VoiceOver), sempre ativo
+    function a11yAnunciar(texto, urgente) {
+      const el = document.getElementById(urgente ? 'a11yLiveUrgent' : 'a11yLive');
+      if (!el) return;
+      el.textContent = '';
+      setTimeout(() => { el.textContent = texto; }, 60);
+    }
+    // chamado para cada alerta novo / crítico resolvido (vem do notifyCheck)
+    function a11yOnAlerta(a, resolvido) {
+      const crit = a.status === 'critico';
+      const texto = resolvido ? `${a.room}: situação normalizada.` : `${crit ? 'Alerta crítico' : 'Atenção'}: ${a.msg.toLowerCase()} no ${a.room}.`;
+      a11yAnunciar(texto, crit && !resolvido);
+      if (A11Y.voz) a11yFalar(texto);
+      if (A11Y.flash && !resolvido) a11yPiscar(a.status);
+    }
+    function roomA11yLabel(id) {
+      const r = rooms[id], issue = computeRoomIssues(id)[0];
+      const pres = r.sensors.presenca ? (r.sensors.presenca === 'Detectada' ? ', com presença' : ', sem presença') : '';
+      return `${r.name}, ${badgeLabel(r.status).toLowerCase()}${issue ? ': ' + issue.msg.toLowerCase() : ''}${pres}. Toque para ver detalhes.`;
+    }
+    function a11yOpen() {
+      a11yRender();
+      const s = document.getElementById('a11ySheet');
+      if (s && s.classList) s.classList.add('active');
+      const m = document.getElementById('userMenu');
+      if (m && m.classList) m.classList.remove('active');
+    }
+    function a11yClose() { const s = document.getElementById('a11ySheet'); if (s && s.classList) s.classList.remove('active'); }
+    function a11yRender() {
+      const el = document.getElementById('a11yBody');
+      if (!el) return;
+      const sw = (key, titulo, desc) => `<div class="lab-row"><span>${titulo}<small>${desc}</small></span>
+        <button class="lab-pill ${A11Y[key] ? 'on' : ''}" role="switch" aria-checked="${A11Y[key]}" aria-label="${titulo}" onclick="a11yToggle('${key}')">${A11Y[key] ? 'Ativado' : 'Desativado'}</button></div>`;
+      const tam = ['Normal', 'Grande', 'Muito grande'];
+      el.innerHTML = `
+        <button class="sos-btn" onclick="sosAbrir('painel')" aria-label="Emergência SOS: acende as luzes, destranca a porta e avisa os contatos">🆘 Emergência (SOS)</button>
+        <p class="lab-note" style="margin:0 0 12px;">Acende todas as luzes, destranca a porta principal para o socorro, avisa seus contatos e mostra os números de emergência. Também por voz: "socorro".</p>
+        <div class="lab-row"><span>🔠 Tamanho do texto<small>Aumenta letras e ícones do app</small></span></div>
+        <div class="a11y-seg" role="radiogroup" aria-label="Tamanho do texto" style="padding-bottom:10px;">${tam.map((t, i) => `<button class="${A11Y.fonte === i ? '' : 'secondary'}" role="radio" aria-checked="${A11Y.fonte === i}" onclick="a11ySet('fonte',${i})">${t}</button>`).join('')}</div>
+        ${sw('contraste', '◐ Alto contraste', 'Cores mais fortes e bordas mais visíveis')}
+        ${sw('botoes', '👆 Botões maiores', 'Áreas de toque maiores, mais fáceis de acertar')}
+        ${sw('voz', '🔊 Ler alertas em voz alta', 'O app fala cada alerta novo da casa')}
+        ${sw('flash', '💡 Alerta visual (tela pisca)', 'Para quem não ouve: borda vermelha em alertas')}
+        ${sw('calmo', '🌙 Reduzir animações', 'Para sensibilidade a movimento')}
+        <div class="lab-actions"><button class="secondary" onclick="a11yTestar()">▶ Testar alerta</button><button class="secondary" onclick="a11yRestaurar()">↺ Restaurar padrão</button></div>
+        <p class="lab-note" style="margin:10px 0 0;">O app também funciona com o leitor de tela do celular (TalkBack no Android). Você pode pedir por voz: "aumentar o texto", "ativar alto contraste".</p>`;
+    }
+    function a11yTestar() {
+      const exemplo = { room: 'Banheiro', msg: 'Possível vazamento', status: 'critico' };
+      a11yAnunciar('Teste: alerta crítico, possível vazamento no Banheiro.', true);
+      if (A11Y.voz) a11yFalar('Teste: alerta crítico, possível vazamento no Banheiro.');
+      if (A11Y.flash) a11yPiscar(exemplo.status);
+      try { if (navigator.vibrate) navigator.vibrate([300, 120, 300]); } catch (e) { }
+      if (!A11Y.voz && !A11Y.flash) showToast('Ative "ler em voz alta" ou "alerta visual" para testar.', '♿');
+    }
+    function a11yRestaurar() { A11Y = Object.assign({}, A11Y_DEFAULT); a11ySave(); a11yApply(); a11yRender(); }
+    // teclado / leitor de tela: Enter ou Espaço ativam elementos com role="button" que não são <button>
+    document.addEventListener('keydown', e => {
+      const t = e.target;
+      if ((e.key === 'Enter' || e.key === ' ') && t && t.getAttribute && t.getAttribute('role') === 'button' && t.tagName !== 'BUTTON') {
+        e.preventDefault();
+        t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      }
+      if (e.key === 'Escape') a11yClose();
+    });
+
+    // ========================================================
+    // 9.25 EMERGÊNCIA (SOS): contagem de 5 s (dá para cancelar) → acende todas as luzes, destranca a porta
+    // principal, registra o evento e avisa os outros aparelhos da casa (contatos de emergência simulados).
+    // Os números oficiais abrem o discador do celular (tel:), a pessoa só confirma a ligação.
+    // ========================================================
+    const SOS_NUMEROS = [
+      ['192', 'SAMU', 'Emergência médica'],
+      ['193', 'Corpo de Bombeiros', 'Incêndio, resgate e acidentes'],
+      ['190', 'Polícia Militar', 'Segurança e violência'],
+      ['199', 'Defesa Civil', 'Desastres naturais e alagamentos'],
+      ['180', 'Central de Atendimento à Mulher', 'Violência contra a mulher'],
+      ['188', 'CVV', 'Apoio emocional, 24 horas']
+    ];
+    const SOS_CONTATOS = [['Mariana Almeida', 'Familiar'], ['Portaria do condomínio', 'Residência Almeida']];
+    const SOS_TITULO_LOG = 'Emergência acionada';
+    var sosEstado = 'idle', sosRemoto = false; // var: podem ser lidos pelas regras antes desta linha rodar
+    let sosConta = 0, sosTimer = null, sosHora = '';
+    // Emergência em curso (aqui ou em outro aparelho da casa): luzes acesas são intencionais
+    function sosEmCurso() { return sosEstado === 'ativa' || sosRemoto === true; }
+    function sosNumerosHtml() {
+      return `<div class="sos-list" aria-label="Números de emergência">${SOS_NUMEROS.map(([n, nome, desc]) => `
+        <div class="sos-item"><span><b>${nome}</b><small>${desc}</small></span><a class="sos-call" href="tel:${n}" aria-label="Ligar para ${nome}, ${n.split('').join(' ')}">📞 ${n}</a></div>`).join('')}</div>`;
+    }
+    function sosRender() {
+      const el = document.getElementById('sosBody');
+      if (!el) return;
+      if (sosEstado === 'contagem') {
+        el.innerHTML = `
+          <h2 id="sosTitle">🆘 Emergência</h2>
+          <p class="sos-sub">Ativando em instantes: todas as luzes acendem, a porta principal é destrancada para o socorro e seus contatos são avisados.</p>
+          <div class="sos-count" aria-live="assertive">${sosConta}</div>
+          <div class="sos-actions" style="margin-bottom:16px;">
+            <button class="sos-light" onclick="sosAtivar()">Ativar agora</button>
+            <button class="sos-ghost" onclick="sosCancelar()">Cancelar</button>
+          </div>
+          <p class="sos-sub" style="margin-bottom:8px;">Precisa ligar? Toque no número:</p>
+          ${sosNumerosHtml()}`;
+        return;
+      }
+      if (sosEstado === 'ativa') {
+        el.innerHTML = `
+          <h2 id="sosTitle">🆘 Emergência ativada</h2>
+          <p class="sos-sub">Acionada às ${sosHora}. Fique calmo(a): a casa já está preparada para receber ajuda.</p>
+          <div class="sos-list">
+            <div class="sos-item"><span>💡 Todas as luzes acesas</span><b>✓</b></div>
+            <div class="sos-item"><span>🚪 Porta principal destrancada</span><b>✓</b></div>
+            ${SOS_CONTATOS.map(([n, rel]) => `<div class="sos-item"><span>📲 ${n}<small>${rel} · avisado(a) pelo app</small></span><b>✓</b></div>`).join('')}
+            <div class="sos-item"><span>📝 Evento registrado no histórico</span><b>✓</b></div>
+          </div>
+          <p class="sos-sub" style="margin-bottom:8px;">Ligue para o serviço de que precisa:</p>
+          ${sosNumerosHtml()}
+          <div class="sos-actions">
+            <button class="sos-light" onclick="sosEncerrar(true)">Encerrar emergência e trancar a porta</button>
+            <button class="sos-ghost" onclick="sosEncerrar(false)">Encerrar (manter a porta destrancada)</button>
+          </div>`;
+      }
+    }
+    function sosMostrar(on) { const s = document.getElementById('sosScreen'); if (s && s.classList) s.classList[on ? 'add' : 'remove']('active'); }
+    function sosAbrir(origem) {
+      a11yClose();
+      if (sosEstado === 'ativa') { sosMostrar(true); sosRender(); return; }
+      if (sosEstado === 'contagem') return;
+      sosEstado = 'contagem'; sosConta = 5;
+      sosMostrar(true); sosRender();
+      a11yAnunciar('Emergência será ativada em 5 segundos. Toque em cancelar para interromper.', true);
+      try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { }
+      clearInterval(sosTimer);
+      sosTimer = setInterval(sosTick, 1000);
+    }
+    function sosTick() {
+      if (sosEstado !== 'contagem') { clearInterval(sosTimer); return; }
+      sosConta--;
+      if (sosConta <= 0) { sosAtivar(); return; }
+      sosRender();
+    }
+    function sosCancelar() {
+      clearInterval(sosTimer);
+      if (sosEstado !== 'contagem') return;
+      sosEstado = 'idle';
+      sosMostrar(false);
+      showToast('Emergência cancelada', '✋');
+    }
+    function sosAtivar() {
+      clearInterval(sosTimer);
+      if (sosEstado === 'ativa') return;
+      sosEstado = 'ativa';
+      sosHora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      roomsWith('luz').forEach(id => { rooms[id].sensors.luz = 'Ligada'; });
+      rooms.sala.sensors.porta = 'Aberta';
+      const quem = authSession ? authSession.name : 'Morador';
+      logActivity('alert', SOS_TITULO_LOG, `${quem}: luzes acesas e porta principal destrancada para o socorro`);
+      showToast('Emergência ativada: luzes acesas e porta destrancada', '🆘');
+      a11yAnunciar('Emergência ativada. Luzes acesas, porta principal destrancada e contatos avisados.', true);
+      if (A11Y.voz) a11yFalar('Emergência ativada. Luzes acesas e porta destrancada. Seus contatos foram avisados.');
+      if (A11Y.flash) a11yPiscar('critico');
+      try { if (navigator.vibrate) navigator.vibrate([500, 150, 500, 150, 500]); } catch (e) { }
+      sosMostrar(true); sosRender();
+      refreshAll();
+    }
+    function sosEncerrar(trancar) {
+      if (trancar) rooms.sala.sensors.porta = 'Fechada';
+      sosEstado = 'idle';
+      sosMostrar(false);
+      logActivity('user', 'Emergência encerrada', trancar ? 'Porta principal trancada novamente' : 'Porta principal mantida destrancada');
+      showToast('Emergência encerrada', '✅');
+      refreshAll();
+    }
+    // outro aparelho da casa recebe o aviso (é o "contato de emergência" na demonstração)
+    function sosAvisoRemoto(desc) {
+      if (!authSession) return;
+      notifySystem(`🆘 EMERGÊNCIA — ${AUTH_DEMO.morador.casa}`, `${desc}. Toque para abrir o DOMUS AI.`, 'domus-sos', true);
+      showToast(`EMERGÊNCIA: ${desc}`, '🆘');
+      a11yAnunciar(`Emergência na residência: ${desc}`, true);
+      if (A11Y.voz) a11yFalar('Atenção: emergência acionada na residência.');
+      a11yPiscar('critico');
+    }
+
+    // ========================================================
+    // 9.3 CLIMA REAL LÁ FORA — Open-Meteo (gratuito, sem chave). Atualiza a cada 15 min.
+    // A sugestão da IA cruza o clima com o estado da casa (janelas, ar-condicionado, presença).
+    // ========================================================
+    const CLIMA = { lat: -23.55, lon: -46.63, cidade: 'São Paulo', data: null, at: 0, erro: null, loading: false };
+    const CLIMA_KEY = 'domus_clima', CLIMA_TTL = 15 * 60 * 1000;
+    let climaAcao = null;
+    const climaUrl = () => `https://api.open-meteo.com/v1/forecast?latitude=${CLIMA.lat}&longitude=${CLIMA.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America%2FSao_Paulo&forecast_days=1`;
+    function climaDesc(code, dia) {
+      const c = Number(code);
+      if (c === 0) return { txt: 'Céu limpo', icon: dia ? '☀️' : '🌙', chuva: false };
+      if (c === 1) return { txt: dia ? 'Predomínio de sol' : 'Poucas nuvens', icon: dia ? '🌤️' : '🌙', chuva: false };
+      if (c === 2) return { txt: 'Parcialmente nublado', icon: '⛅', chuva: false };
+      if (c === 3) return { txt: 'Nublado', icon: '☁️', chuva: false };
+      if (c === 45 || c === 48) return { txt: 'Neblina', icon: '🌫️', chuva: false };
+      if (c >= 51 && c <= 57) return { txt: 'Garoa', icon: '🌦️', chuva: true };
+      if (c >= 61 && c <= 67) return { txt: 'Chuva', icon: '🌧️', chuva: true };
+      if (c >= 71 && c <= 77) return { txt: 'Neve', icon: '❄️', chuva: false };
+      if (c >= 80 && c <= 82) return { txt: 'Pancadas de chuva', icon: '🌧️', chuva: true };
+      if (c >= 95) return { txt: 'Tempestade', icon: '⛈️', chuva: true };
+      return { txt: 'Condição indefinida', icon: '🌡️', chuva: false };
+    }
+    function climaLoadCache() {
+      try { const v = JSON.parse(localStorage.getItem(CLIMA_KEY) || 'null'); if (v && v.data && typeof v.data.temp === 'number') { CLIMA.data = v.data; CLIMA.at = v.at || 0; } } catch (e) { }
+    }
+    async function climaFetch(force) {
+      if (CLIMA.loading || typeof fetch !== 'function') return;
+      if (!force && CLIMA.data && Date.now() - CLIMA.at < CLIMA_TTL) return;
+      CLIMA.loading = true;
+      try {
+        const r = await Promise.race([fetch(climaUrl()), new Promise((_, rej) => setTimeout(() => rej(new Error('tempo esgotado')), 10000))]);
+        if (!r || !r.ok) throw new Error('HTTP ' + (r && r.status));
+        const j = await r.json(), c = (j && j.current) || {}, d = (j && j.daily) || {};
+        if (typeof c.temperature_2m !== 'number') throw new Error('resposta inesperada');
+        CLIMA.data = {
+          temp: c.temperature_2m, sens: c.apparent_temperature, umid: c.relative_humidity_2m, code: c.weather_code, dia: c.is_day === 1,
+          max: (d.temperature_2m_max || [])[0], min: (d.temperature_2m_min || [])[0], chuvaProb: (d.precipitation_probability_max || [])[0]
+        };
+        CLIMA.at = Date.now(); CLIMA.erro = null;
+        try { localStorage.setItem(CLIMA_KEY, JSON.stringify({ data: CLIMA.data, at: CLIMA.at })); } catch (e) { }
+      } catch (e) { CLIMA.erro = String((e && e.message) || e); }
+      CLIMA.loading = false;
+      renderClima();
+    }
+    // Sugestão da IA: { msg, label, run } — run = o que o botão faz (ou null)
+    function climaSugestao() {
+      const d = CLIMA.data;
+      if (!d) return null;
+      const desc = climaDesc(d.code, d.dia), t = Math.round(d.temp);
+      const abertas = roomsWith('janela').filter(id => rooms[id].sensors.janela === 'Aberta');
+      const acKw = parseFloat(rooms.sala.sensors.consumo), acOn = acKw > AC_OFF_KW + 0.01;
+      const salaOcupada = rooms.sala.sensors.presenca === 'Detectada';
+      const chuvaPrev = typeof d.chuvaProb === 'number' && d.chuvaProb >= 60;
+      const fechar = { label: `🪟 Fechar ${abertas.length > 1 ? 'as ' + abertas.length + ' janelas' : 'a janela'}`, run: () => climaFecharJanelas() };
+      if ((desc.chuva || chuvaPrev) && abertas.length) return Object.assign({ msg: `${desc.chuva ? 'Está chovendo' : `Há ${d.chuvaProb}% de chance de chuva hoje`} e ${abertas.length} janela(s) estão abertas (${abertas.map(id => rooms[id].name).join(', ')}). Sugiro fechar agora.` }, fechar);
+      if (t >= 28) {
+        if (abertas.length) return Object.assign({ msg: `Calor de ${t} °C lá fora. Fechar as janelas ajuda a manter a casa fresca e reduz o esforço do ar-condicionado.` }, fechar);
+        if (!acOn && salaOcupada) return { msg: `Calor de ${t} °C lá fora e a sala está ocupada. Sugiro ligar o ar da sala no modo Eco.`, label: '❄️ Ligar ar em Eco', run: () => ctrlSet('sala', 'consumo', AC_ECO_KW) };
+        return { msg: `Calor de ${t} °C lá fora. A casa está protegida: janelas fechadas${acOn ? ' e climatização ativa' : ''}.`, label: null, run: null };
+      }
+      if (t >= 18 && t < 26 && acOn) {
+        const eco = (acKw - AC_OFF_KW) * 4 * TARIFA_KWH;
+        return { msg: `Lá fora está agradável (${t} °C). Desligar o ar da sala por 4 horas economiza cerca de ${brl(eco)}.`, label: '⏻ Desligar ar da sala', run: () => ctrlSet('sala', 'consumo', AC_OFF_KW) };
+      }
+      if (t < 18 && abertas.length) return Object.assign({ msg: `Frio lá fora (${t} °C) com janela(s) aberta(s). Fechar evita perder calor.` }, fechar);
+      return { msg: `Clima de ${t} °C lá fora e casa em equilíbrio. Nenhuma ação necessária${chuvaPrev ? `; atenção: ${d.chuvaProb}% de chance de chuva hoje` : ''}.`, label: null, run: null };
+    }
+    function climaFecharJanelas() {
+      roomsWith('janela').forEach(id => { rooms[id].sensors.janela = 'Fechada'; });
+      logActivity('user', 'Sugestão da IA (clima)', 'Janelas fechadas');
+      showToast('Janelas fechadas pela sugestão da IA', '🪟');
+      refreshAll();
+    }
+    function climaAplicar() { if (climaAcao) climaAcao(); }
+    function renderClima() {
+      const el = document.getElementById('climaCard');
+      if (!el) return;
+      const d = CLIMA.data;
+      const head = (badge) => `<div class="panel-header"><h3 class="panel-title"><span>🌦️</span> CLIMA LÁ FORA</h3><span class="badge normal">${badge}</span></div>`;
+      if (!d) {
+        climaAcao = null;
+        el.innerHTML = head(CLIMA.cidade) + `<p style="font-size:12px;color:var(--muted);">${CLIMA.erro ? 'Sem conexão com o serviço de clima. Tentando de novo em instantes.' : 'Consultando o clima de ' + CLIMA.cidade + '…'}</p>`;
+        return;
+      }
+      const desc = climaDesc(d.code, d.dia), sug = climaSugestao();
+      const min = Math.max(0, Math.round((Date.now() - CLIMA.at) / 60000));
+      climaAcao = sug && sug.run ? sug.run : null;
+      el.innerHTML = head(`${CLIMA.cidade} · ${min < 1 ? 'agora' : 'há ' + min + ' min'}`) + `
+      <div class="clima-top">
+        <div class="clima-temp">${desc.icon} ${fmt(d.temp, 0)}°</div>
+        <div>
+          <div class="clima-desc">${desc.txt}</div>
+          <div class="clima-meta">Sensação ${fmt(d.sens, 0)}° · Umidade ${fmt(d.umid, 0)}%<br>Máx ${fmt(d.max, 0)}° · Mín ${fmt(d.min, 0)}°${typeof d.chuvaProb === 'number' ? ` · Chuva ${d.chuvaProb}%` : ''}</div>
+        </div>
+      </div>
+      <div class="row"><span>Dentro de casa (sala)</span><b style="color:var(--txt)">${fmt(rooms.sala.sensors.temp, 1)} °C</b></div>
+      ${sug ? `<div class="clima-ia">🤖 <b>Sugestão da IA:</b> ${sug.msg}${sug.run ? `<button onclick="climaAplicar()">${sug.label}</button>` : ''}</div>` : ''}
+      <div style="font-size:10px;color:var(--subtle);margin-top:8px;">Fonte: Open-Meteo${CLIMA.erro ? ' · última leitura salva' : ''}</div>`;
+    }
+    function climaFala() {
+      const d = CLIMA.data;
+      if (!d) return 'Ainda não consegui consultar o clima lá fora. Verifique a conexão com a internet.';
+      const desc = climaDesc(d.code, d.dia), sug = climaSugestao();
+      return `Lá fora, em ${CLIMA.cidade}, faz ${fmt(d.temp, 0)} graus, ${desc.txt.toLowerCase()}. Máxima de ${fmt(d.max, 0)} e mínima de ${fmt(d.min, 0)}${typeof d.chuvaProb === 'number' ? `, com ${d.chuvaProb}% de chance de chuva` : ''}.${sug ? ' ' + sug.msg : ''}`;
+    }
+
+    // ========================================================
+    // 9.4 RELATÓRIO MENSAL EM PDF (jsPDF, carregado só quando usado)
+    // ========================================================
+    const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    const MESES_LONGOS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    function loadScriptOnce(url) {
+      return new Promise((res, rej) => {
+        if (document.querySelector(`script[src="${url}"]`) && window.jspdf) return res();
+        const sc = document.createElement('script');
+        sc.src = url; sc.async = true; sc.onload = () => res(); sc.onerror = () => rej(new Error('não carregou ' + url));
+        document.head.appendChild(sc);
+      });
+    }
+    async function relatorioEventos(inicioMes) {
+      let lista = null;
+      if (SUPA.client && SUPA.synced) {
+        try {
+          const r = await SUPA.client.from('activity_logs').select('created_at,type,title,description').eq('home_id', SUPA.home)
+            .gte('created_at', new Date(inicioMes).toISOString()).order('created_at', { ascending: false }).limit(500);
+          if (!r.error) lista = (r.data || []).map(x => ({ t: new Date(x.created_at).getTime(), type: x.type, title: x.title, desc: x.description || '' }));
+        } catch (e) { }
+      }
+      const doBanco = !!lista;
+      if (!lista) lista = activityLogs.map(x => ({ t: x._t || Date.now(), type: x.type, title: x.title, desc: x.desc || '' }));
+      const alertas = lista.filter(x => x.type === 'alert').length, autos = lista.filter(x => x.type === 'auto').length, cmds = lista.filter(x => x.type === 'user').length;
+      const destaque = lista.filter(x => x.type === 'alert' || x.type === 'auto').slice(0, 8);
+      return { alertas, autos, cmds, total: lista.length, destaque, doBanco };
+    }
+    async function relatorioDados() {
+      const agora = new Date(), mesIdx = agora.getMonth(), ano = agora.getFullYear();
+      const inicioMes = new Date(ano, mesIdx, 1).getTime();
+      const e = energySummary(), w = waterSummary(), h = DOMUS_HISTORY, sc = computeScore();
+      const banco = !!(h.ready && h.cur && h.cur.kwh > 0);
+      const meta = SUPA.metaKwh || 0, pct = meta ? e.kwhMes / meta * 100 : 0;
+      let ranking;
+      if (banco) {
+        const tot = h.cur.kwh || 1;
+        ranking = Object.entries(h.cur.rooms || {}).sort((a, b) => b[1] - a[1]).slice(0, 6)
+          .map(([id, v]) => ({ name: id === 'base' ? 'Base da casa' : (rooms[id] ? rooms[id].name : id), v, txt: `${fmt(v, 0)} kWh (${fmt(v / tot * 100, 0)}%)` }));
+      } else {
+        const tot = e.kw || 1;
+        ranking = e.ranked.slice(0, 6).map(r => ({ name: r.id === 'base' ? 'Base da casa' : r.name, v: r.v, txt: `${fmt(r.v, 1)} kW agora (${fmt(r.v / tot * 100, 0)}%)` }));
+      }
+      const meses = banco ? h.months.filter(m => m.month !== h.cur.month).slice(-5).map(m => ({ label: MESES[Number(m.month.slice(5, 7)) - 1], kwh: m.kwh, m3: m.water / 1000 }))
+        .concat([{ label: MESES[mesIdx] + '*', kwh: h.cur.projKwh, m3: h.cur.projWater / 1000, hi: true }]) : [];
+      const ev = await relatorioEventos(inicioMes);
+      const rec = [];
+      if (meta) rec.push(pct > 100 ? `A projeção do mês (${fmt(e.kwhMes, 0)} kWh) está ${fmt(pct - 100, 0)}% acima da meta de ${fmt(meta, 0)} kWh. Revise o uso do ar-condicionado e dos equipamentos de maior potência.` : `Consumo de energia dentro da meta: a projeção está em ${fmt(pct, 0)}% da meta mensal de ${fmt(meta, 0)} kWh.`);
+      const topo = ranking.find(r => r.name !== 'Base da casa');
+      if (topo) rec.push(`${topo.name} é o maior consumidor da casa. Programar horários de uso e manter as automações de presença ativas reduz desperdícios.`);
+      const acKw = parseFloat(rooms.sala.sensors.consumo);
+      if (acKw > AC_ECO_KW + 0.01) rec.push(`Usar o ar-condicionado da sala no modo Eco pode economizar cerca de ${brl((acKw - AC_ECO_KW) * 8 * 30 * TARIFA_KWH)} por mês (8 h de uso por dia).`);
+      rec.push(w.devTotal >= 20 ? `O consumo de água está ${w.devTotal}% acima da média esperada. Verifique vazamentos e o tempo de banho.` : `Consumo de água dentro da média esperada para a residência.`);
+      if (ev.autos) rec.push(`A IA executou ${ev.autos} ação(ões) automática(s) no período, como fechar a válvula em vazamentos e apagar luzes esquecidas.`);
+      return {
+        mes: `${MESES_LONGOS[mesIdx]} de ${ano}`, arquivo: `DOMUS_relatorio_${ano}-${String(mesIdx + 1).padStart(2, '0')}.pdf`,
+        geradoEm: agora.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        residencia: AUTH_DEMO.morador.casa, morador: AUTH_DEMO.morador.name,
+        fonte: banco ? 'Banco de dados (histórico da residência)' : 'Estimativa a partir das leituras atuais (sem histórico do banco)',
+        energia: { kwhMes: e.kwhMes, custo: e.custoMes, kwhDia: e.kwhDia, kwAgora: e.kw }, agua: { m3: w.m3Mes, custo: w.custoMes, litrosHoje: w.hoje },
+        meta: { kwh: meta, pct }, score: sc.overall, ranking, meses, eventos: ev, recomendacoes: rec,
+        clima: CLIMA.data ? { temp: CLIMA.data.temp, txt: climaDesc(CLIMA.data.code, CLIMA.data.dia).txt } : null
+      };
+    }
+    // Só caracteres que a fonte padrão do PDF suporta (Latin-1): troca travessões, aspas curvas, reticências e remove emojis
+    const pdfTxt = v => String(v).replace(/\u2192/g, '->').replace(/\u00b3/g, '3').replace(/[\u2013\u2014]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, '...').replace(/\u00a0|\u202f/g, ' ').replace(/[^\x20-\x7E\xA0-\xFF]/g, '').trim();
+    function relatorioDesenhar(doc, D) {
+      const W = 210, M = 14;
+      let y = 0;
+      const cor = (r, g, b) => doc.setTextColor(r, g, b);
+      const txt = (s, x, yy, o) => doc.text(pdfTxt(s), x, yy, o || {});
+      const novaPagina = () => { doc.addPage(); y = 18; };
+      const garante = hh => { if (y + hh > 280) novaPagina(); };
+      const secao = t => { garante(16); y += 4; doc.setFont('helvetica', 'bold'); doc.setFontSize(12); cor(10, 20, 35); txt(t, M, y); doc.setDrawColor(34, 230, 208); doc.setLineWidth(0.6); doc.line(M, y + 1.8, M + 28, y + 1.8); y += 8; };
+      const par = (s, size) => { doc.setFont('helvetica', 'normal'); doc.setFontSize(size || 10); cor(40, 48, 60); const ls = doc.splitTextToSize(pdfTxt(s), W - 2 * M); garante(ls.length * 5); doc.text(ls, M, y); y += ls.length * 5; };
+      // cabeçalho
+      doc.setFillColor(6, 9, 14); doc.rect(0, 0, W, 34, 'F');
+      doc.setFillColor(34, 230, 208); doc.rect(0, 34, W, 1.2, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(22); cor(34, 230, 208); txt('DOMUS AI', M, 16);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); cor(200, 210, 225); txt('Relatório mensal da residência', M, 24);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); cor(255, 255, 255); txt(D.mes.charAt(0).toUpperCase() + D.mes.slice(1), W - M, 16, { align: 'right' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); cor(160, 170, 190); txt(`Gerado em ${D.geradoEm}`, W - M, 24, { align: 'right' });
+      y = 44;
+      doc.setFontSize(10); cor(40, 48, 60);
+      txt(`${D.residencia}  |  Morador: ${D.morador}`, M, y); y += 5;
+      doc.setFontSize(8.5); cor(110, 120, 135); txt(`Fonte dos dados: ${D.fonte}`, M, y); y += 8;
+      // indicadores (3 x 2)
+      const kpis = [
+        ['Energia (projeção do mês)', `${fmt(D.energia.kwhMes, 0)} kWh`], ['Custo de energia', brl(D.energia.custo)], ['DOMUS Score', `${D.score} / 100`],
+        ['Água (projeção do mês)', `${fmt(D.agua.m3, 1)} m³`], ['Custo de água', brl(D.agua.custo)], ['Meta de energia', D.meta.kwh ? `${fmt(D.meta.pct, 0)}% da meta` : '-']
+      ];
+      const bw = (W - 2 * M - 8) / 3, bh = 20;
+      kpis.forEach(([l, v], i) => {
+        const bx = M + (i % 3) * (bw + 4), by = y + Math.floor(i / 3) * (bh + 4);
+        doc.setFillColor(240, 247, 250); doc.setDrawColor(210, 225, 232); doc.roundedRect(bx, by, bw, bh, 2.5, 2.5, 'FD');
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); cor(100, 112, 128); txt(l, bx + 4, by + 7);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(13); cor(10, 20, 35); txt(v, bx + 4, by + 15.5);
+      });
+      y += 2 * (bh + 4) + 2;
+      // gráficos
+      const barras = (titulo, itens, fmtV) => {
+        secao(titulo);
+        const ch = 30, cw = W - 2 * M, max = Math.max(...itens.map(i => i.v), 1), n = itens.length, gap = 4, bwid = (cw - gap * (n - 1)) / n;
+        garante(ch + 12);
+        itens.forEach((it, i) => {
+          const hh = Math.max(0.8, it.v / max * (ch - 8)), bx = M + i * (bwid + gap), by = y + ch - hh;
+          if (it.hi) doc.setFillColor(34, 230, 208); else doc.setFillColor(160, 225, 220);
+          doc.rect(bx, by, bwid, hh, 'F');
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(8); cor(40, 48, 60); txt(fmtV(it.v), bx + bwid / 2, by - 1.5, { align: 'center' });
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(8); cor(100, 112, 128); txt(it.label, bx + bwid / 2, y + ch + 4.5, { align: 'center' });
+        });
+        y += ch + 9;
+      };
+      if (D.meses.length) {
+        barras('Energia por mês (kWh)', D.meses.map(m => ({ label: m.label, v: m.kwh, hi: m.hi })), v => fmt(v, 0));
+        barras('Água por mês (m³)', D.meses.map(m => ({ label: m.label, v: m.m3, hi: m.hi })), v => fmt(v, 1));
+        par('* mês atual: projeção a partir do consumo até hoje.', 8);
+      } else {
+        secao('Evolução mensal');
+        par('O gráfico dos últimos meses aparece quando o app está conectado ao banco de dados (histórico da residência).', 9);
+      }
+      // ranking
+      secao('Quem mais consumiu energia');
+      doc.setFontSize(10);
+      D.ranking.forEach((r, i) => {
+        garante(7);
+        doc.setFillColor(i % 2 ? 255 : 246, i % 2 ? 255 : 250, i % 2 ? 255 : 252); doc.rect(M, y - 4.5, W - 2 * M, 7, 'F');
+        doc.setFont('helvetica', 'normal'); cor(40, 48, 60); txt(`${i + 1}. ${r.name}`, M + 2, y);
+        doc.setFont('helvetica', 'bold'); txt(r.txt, W - M - 2, y, { align: 'right' });
+        y += 7;
+      });
+      // eventos
+      secao('Alertas e ações da IA no período');
+      const ev = D.eventos;
+      par(`${ev.alertas} alerta(s) registrado(s), ${ev.autos} ação(ões) automática(s) da IA e ${ev.cmds} comando(s) do morador${ev.doBanco ? ' neste mês' : ' (registros recentes deste aparelho)'}.`, 10);
+      if (ev.destaque.length) {
+        y += 1;
+        ev.destaque.forEach(x => {
+          const quando = new Date(x.t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+          par(`- ${quando}  ${x.title}${x.desc ? ': ' + x.desc : ''}`, 9);
+        });
+      }
+      // recomendações
+      secao('Recomendações da IA');
+      D.recomendacoes.forEach((r, i) => { par(`${i + 1}. ${r}`, 10); y += 1.5; });
+      if (D.clima) { y += 2; par(`Condição externa na geração do relatório: ${fmt(D.clima.temp, 0)} °C, ${D.clima.txt.toLowerCase()} (${CLIMA.cidade}).`, 9); }
+      // rodapé em todas as páginas
+      const tot = doc.getNumberOfPages();
+      for (let i = 1; i <= tot; i++) {
+        doc.setPage(i);
+        doc.setDrawColor(220, 226, 232); doc.setLineWidth(0.3); doc.line(M, 286, W - M, 286);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); cor(130, 140, 155);
+        txt('DOMUS AI - relatório gerado automaticamente - dados simulados para demonstração', M, 291);
+        txt(`Página ${i} de ${tot}`, W - M, 291, { align: 'right' });
+      }
+      return doc;
+    }
+    let relatorioOcupado = false;
+    async function relatorioGerar(acao) {
+      if (relatorioOcupado) return;
+      relatorioOcupado = true;
+      const st = document.getElementById('reportStatus');
+      const status = t => { if (st) st.textContent = t; };
+      try {
+        status('Preparando o relatório…');
+        if (!(window.jspdf && window.jspdf.jsPDF)) await loadScriptOnce(JSPDF_URL);
+        const D = await relatorioDados();
+        const doc = relatorioDesenhar(new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), D);
+        const blob = doc.output('blob');
+        let compartilhou = false;
+        if (acao === 'compartilhar' && typeof File !== 'undefined' && navigator.canShare) {
+          const file = new File([blob], D.arquivo, { type: 'application/pdf' });
+          if (navigator.canShare({ files: [file] })) {
+            try { await navigator.share({ files: [file], title: 'Relatório DOMUS AI', text: `Relatório de ${D.mes} - ${D.residencia}` }); compartilhou = true; }
+            catch (e) { if (e && e.name === 'AbortError') { status(''); return; } }
+          }
+        }
+        if (!compartilhou) doc.save(D.arquivo);
+        status(compartilhou ? 'Relatório compartilhado.' : `Relatório salvo: ${D.arquivo}`);
+        logActivity('user', 'Relatório mensal', `PDF de ${D.mes} ${compartilhou ? 'compartilhado' : 'gerado'}`);
+      } catch (e) {
+        console.warn('[DOMUS PDF]', e);
+        status('Não foi possível gerar o PDF agora. Verifique a internet e tente de novo.');
+        showToast('Falha ao gerar o relatório', '⚠️');
+      } finally { relatorioOcupado = false; }
+    }
+
+    // ========================================================
     // 9.5 LOGIN — AUTENTICAÇÃO SIMULADA NA DEMONSTRAÇÃO
     // Só dá "cara de app": não protege nada (o código fica no HTML e o banco está aberto para a demo).
     // Login real seria Supabase Auth + fechar o RLS (passo futuro).
@@ -4344,8 +5030,11 @@
       const ini = tech ? '🔧' : nome.split(' ').filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase();
       const ub = document.getElementById('userBtn');
       ub.textContent = ini;
+      ub.setAttribute('aria-label', `Minha conta: ${nome}${tech ? ', modo técnico' : ''}`);
       ub.className = 'btn-icon user-btn' + (tech ? ' tech' : '');
       document.getElementById('labBtn').style.display = tech ? 'flex' : 'none';
+      document.getElementById('notifyBtn').style.display = tech ? 'none' : '';
+      notifyRenderBtn();
       document.getElementById('userMenuName').textContent = nome;
       document.getElementById('userMenuSub').textContent = tech ? `${AUTH_DEMO.tecnico.id} · acesso ao Laboratório` : `${AUTH_DEMO.morador.email} · ${AUTH_DEMO.morador.casa}`;
     }
@@ -4370,6 +5059,7 @@
       }
       authSave(authSession);
       authApply();
+      if (!authIsTech()) notifyEnable(true);
       logActivity('user', 'Acesso ao app', `${authSession.name} entrou${authIsTech() ? ' (modo técnico)' : ''}`);
       showToast(authIsTech() ? 'Modo técnico ativo — Laboratório liberado' : `Bem-vindo, ${authSession.name.split(' ')[0]}!`, authIsTech() ? '🔧' : '👋');
     }
@@ -4387,6 +5077,74 @@
       authApply();
       if (nome) logActivity('user', 'Acesso ao app', `${nome} saiu`);
     }
+    // ========================================================
+    // 9.6 NOTIFICAÇÕES DO MORADOR
+    // Alerta novo (de qualquer origem: este celular, outro celular, técnico ou automação) → notificação + vibração.
+    // Alerta crítico que some → "situação normalizada". Só para o morador; o técnico é quem provoca os eventos.
+    // Funciona com o app aberto ou em segundo plano. Com o app fechado precisaria de servidor de push (passo futuro).
+    // ========================================================
+    const NOTIFY_START = Date.now();
+    const NOTIFY_ARM_MS = 4000; // ao abrir o app, os alertas que já existem não geram notificação
+    let notifySeen = null;
+    const notifySupported = () => typeof Notification !== 'undefined';
+    const notifyArmed = () => Date.now() - NOTIFY_START >= NOTIFY_ARM_MS && (SUPA.synced || SUPA.state === 'local');
+    function notifySystem(title, body, tag, urgent) {
+      const pattern = urgent ? [300, 120, 300, 120, 300] : [200];
+      try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { }
+      if (!notifySupported() || Notification.permission !== 'granted') return;
+      const opt = { body, tag, renotify: true, icon: 'assets/icon-192.png', badge: 'assets/icon-192.png', vibrate: pattern, requireInteraction: !!urgent, data: { url: '/domus-html.html' } };
+      const viaPage = () => { try { new Notification(title, opt); } catch (e) { } };
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+          navigator.serviceWorker.getRegistration().then(reg => (reg ? reg.showNotification(title, opt) : viaPage())).catch(viaPage);
+        } else viaPage();
+      } catch (e) { viaPage(); }
+    }
+    function notifyCheck() {
+      const now = {};
+      computeAlerts().forEach(a => { now[a.id + '|' + a.msg] = a; });
+      const prev = notifySeen;
+      notifySeen = now;
+      if (!prev || !notifyArmed() || !authSession) return;
+      Object.keys(now).forEach(k => { if (!prev[k]) a11yOnAlerta(now[k], false); });
+      Object.keys(prev).forEach(k => { if (!now[k] && prev[k].status === 'critico') a11yOnAlerta(prev[k], true); });
+      if (authIsTech()) return; // notificação do celular: só para o morador
+      Object.keys(now).forEach(k => {
+        if (prev[k]) return;
+        const a = now[k], crit = a.status === 'critico';
+        showToast(`${a.room}: ${a.msg}`, '🔔');
+        notifySystem(`${crit ? '🚨' : '⚠️'} ${a.msg} — ${a.room}`, `${a.action}. Toque para abrir o DOMUS AI.`, 'domus-' + k, crit);
+      });
+      Object.keys(prev).forEach(k => {
+        if (now[k] || prev[k].status !== 'critico') return;
+        const a = prev[k];
+        notifySystem(`✅ ${a.room}: situação normalizada`, `${a.msg} — resolvido.`, 'domus-' + k + '-ok', false); // etiqueta própria: não apaga a do alerta
+      });
+    }
+    function notifyRenderBtn() {
+      const b = document.getElementById('notifyBtn');
+      if (!b) return;
+      const st = notifySupported() ? Notification.permission : 'unsupported';
+      b.textContent = st === 'granted' ? '🔔 Notificações ativas' : st === 'denied' ? '🔕 Notificações bloqueadas' : st === 'unsupported' ? '🔕 Sem suporte a notificações' : '🔔 Ativar notificações';
+    }
+    function notifyEnable(quiet) {
+      if (!notifySupported()) { if (!quiet) showToast('Este navegador não suporta notificações.', '🔕'); notifyRenderBtn(); return; }
+      if (Notification.permission === 'granted') {
+        if (!quiet) notifySystem('🔔 DOMUS AI', 'Notificações funcionando. Você será avisado sobre alertas da casa.', 'domus-teste', false);
+        notifyRenderBtn(); return;
+      }
+      if (Notification.permission === 'denied') {
+        if (!quiet) showToast('Notificações bloqueadas. Libere nas configurações do app no celular.', '🔕');
+        notifyRenderBtn(); return;
+      }
+      try {
+        Promise.resolve(Notification.requestPermission()).then(r => {
+          notifyRenderBtn();
+          if (r === 'granted') notifySystem('🔔 DOMUS AI', 'Notificações ativadas. Você será avisado sobre alertas da casa.', 'domus-teste', false);
+        }).catch(() => notifyRenderBtn());
+      } catch (e) { notifyRenderBtn(); }
+    }
+
     // toque fora do menu da conta fecha o menu
     document.addEventListener('click', e => {
       const m = document.getElementById('userMenu'), b = document.getElementById('userBtn');
@@ -4402,7 +5160,10 @@
     // ========================================================
     // 10. INICIALIZAÇÃO GERAL
     // ========================================================
+    a11yLoad();
+    a11yApply();
     authInit();
+    climaLoadCache();
     buildPlant2D();
     buildScene3D();
     buildCameras();
@@ -4414,6 +5175,10 @@
     animate();
     setMode('2d');
     supaInit();
+    climaFetch(true);
+    setInterval(() => climaFetch(false), 5 * 60 * 1000); // respeita os 15 min de validade
+    if (typeof window.addEventListener === 'function') window.addEventListener('online', () => climaFetch(true));
+    { const sb = document.getElementById('reportShareBtn'); if (sb && navigator.canShare && typeof File !== 'undefined') { try { if (navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] })) sb.style.display = ''; } catch (e) { } } }
   </script>
   <script>
     // PWA: registra o service worker (só em HTTPS ou localhost)

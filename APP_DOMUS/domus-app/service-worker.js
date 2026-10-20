@@ -1,6 +1,6 @@
 // DOMUS AI — Service Worker
 // Versão do cache — incrementar ao fazer deploy de novas versões
-const CACHE_NAME = 'domus-ai-v6';
+const CACHE_NAME = 'domus-ai-v7';
 
 // Arquivos que ficam disponíveis offline (shell do app)
 const SHELL_ASSETS = [
@@ -108,9 +108,14 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
+// Toque na notificação: volta para o app se ele já estiver aberto; senão, abre
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || '/domus-html.html';
   event.waitUntil(
-    clients.openWindow(event.notification.data.url || '/domus-html.html')
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const c of list) { if ('focus' in c) return c.focus(); }
+      return clients.openWindow(url);
+    })
   );
 });
