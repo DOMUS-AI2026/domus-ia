@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demonstração · DOMUS AI</title>
+<meta name="description" content="Simule um vazamento, uma luz esquecida ou um ar ligado sem ninguém e resolva pelo app do DOMUS AI.">
+<meta name="theme-color" content="#05080d">
+<link rel="canonical" href="https://domus-ia.netlify.app/demo.html">
+<!-- prévia ao compartilhar o link (WhatsApp, Instagram, X, LinkedIn) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DOMUS AI">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Demonstração · DOMUS AI">
+<meta property="og:description" content="Simule um vazamento, uma luz esquecida ou um ar ligado sem ninguém e resolva pelo app do DOMUS AI.">
+<meta property="og:url" content="https://domus-ia.netlify.app/demo.html">
+<meta property="og:image" content="https://domus-ia.netlify.app/img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="DOMUS AI · A casa que entende e age">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://domus-ia.netlify.app/img/og-image.jpg">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:wght@500&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+<header class="site-header" id="site-header"></header>
+
+<main id="conteudo">
+<section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Demonstração interativa</p>
+      <h1>Simule um problema e resolva pelo app</h1>
+      <p class="lede">Escolha um evento: o sensor detecta, o DOMUS avisa no celular e o atuador executa quando você aprova. Ligue o modo automático para o DOMUS agir sozinho.</p>
+    </div>
+  </section>
+
+  <section class="section tight" id="simulador">
+    <div class="wrap">
+      <div class="controls">
+        <span class="lbl">Simular</span>
+        <button class="btn sm" id="bLeak" type="button">Vazamento</button>
+        <button class="btn sm" id="bLight" type="button">Luz esquecida</button>
+        <button class="btn sm" id="bAc" type="button">Ar sem ninguém</button>
+        <button class="btn sm" id="bReset" type="button">Reiniciar</button>
+        <label class="switch" for="auto"><span>Modo automático</span><input type="checkbox" id="auto"></label>
+      </div>
+
+      <div class="demo">
+        <div class="panel">
+          <div class="pipe" aria-label="Caminho do evento">
+            <div id="p1"><i></i>Sensor</div>
+            <div id="p2"><i></i>DOMUS AI</div>
+            <div id="p3"><i></i>Atuador</div>
+          </div>
+          <div class="rooms">
+            <div class="room">
+              <h3>Banheiro</h3>
+              <div class="dev"><span class="t">Sensor de água</span><span class="s">no piso, perto do registro</span><span class="pill ok" id="waterS">Seco</span></div>
+              <div class="dev"><span class="t">Válvula inteligente</span><span class="s">atuador no registro</span><span class="pill ok" id="valveS">Aberta</span></div>
+            </div>
+            <div class="room">
+              <h3>Sala</h3>
+              <div class="dev"><span class="t">Sensor de presença</span><span class="s">cobertura do ambiente</span><span class="pill idle" id="presS">Vazio</span></div>
+              <div class="dev"><span class="t">Luz da sala</span><span class="s">relé inteligente</span><span class="pill idle" id="lightS">Desligada</span></div>
+            </div>
+            <div class="room">
+              <h3>Quarto</h3>
+              <div class="dev"><span class="t">Sensor de presença</span><span class="s">cobertura do ambiente</span><span class="pill idle" id="pres2S">Vazio</span></div>
+              <div class="dev"><span class="t">Ar-condicionado</span><span class="s">tomada inteligente</span><span class="pill idle" id="acS">Desligado</span></div>
+            </div>
+          </div>
+          <div class="log" id="log" aria-live="polite"></div>
+        </div>
+
+        <div class="phone" id="phone" aria-label="Aplicativo DOMUS AI">
+          <div class="screen">
+            <div class="sbar"><span id="clock">19:24</span><span>DOMUS · online</span></div>
+            <div class="apphead"><img src="img/logo.webp" width="44" height="21" alt=""><div><b>DOMUS AI</b><small>Minha casa</small></div></div>
+            <div class="kpis">
+              <div class="kpi"><small>Água</small><b id="kWater">12 L/h</b></div>
+              <div class="kpi"><small>Energia</small><b id="kPow">0,4 kW</b></div>
+              <div class="kpi"><small>Temp.</small><b>24 °C</b></div>
+            </div>
+            <div class="feed" id="feed"><p class="empty">Tudo certo por aqui.<br>Nenhum alerta ativo.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/demo.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
