@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOMUS — Teste de voz</title>
+<style>
+  body{background:#06090e;color:#e6f1ff;font-family:system-ui,sans-serif;margin:0;padding:20px;max-width:720px}
+  h1{font-size:20px;color:#22e6d0}
+  button{background:#22e6d0;color:#06090e;border:0;border-radius:10px;padding:12px 20px;font-size:16px;font-weight:700;cursor:pointer}
+  pre{background:#0d141d;border:1px solid #1d2a3a;border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5}
+  .ok{color:#3ddc84}.err{color:#ff6b6b}.warn{color:#ffd166}
+</style>
+</head>
+<body>
+<h1>DOMUS AI — Teste de reconhecimento de voz</h1>
+<p>Clique em <b>Iniciar teste</b>, permita o microfone e diga uma frase como "ligar luz da sala". Depois mande um print desta tela.</p>
+<button id="go">Iniciar teste</button>
+<h3>Ambiente</h3>
+<pre id="env"></pre>
+<h3>Eventos</h3>
+<pre id="log"></pre>
+<script>
+const $ = (id) => document.getElementById(id);
+const t0 = () => ((performance.now() - start) / 1000).toFixed(2) + 's';
+let start = performance.now();
+function log(msg, cls) { $('log').innerHTML += `<span class="${cls || ''}">[${t0()}] ${msg}</span>\n`; }
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+$('env').textContent =
+  'Endereço: ' + location.href + '\n' +
+  'Contexto seguro (HTTPS): ' + window.isSecureContext + '\n' +
+  'SpeechRecognition existe: ' + !!SR + '\n' +
+  'Online (navigator.onLine): ' + navigator.onLine + '\n' +
+  'Idioma do navegador: ' + navigator.language + '\n' +
+  'Navegador: ' + navigator.userAgent;
+
+$('go').onclick = async () => {
+  $('log').innerHTML = ''; start = performance.now();
+  if (!SR) { log('SpeechRecognition NÃO suportado.', 'err'); return; }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const track = s.getAudioTracks()[0];
+    log('Microfone liberado: ' + track.label, 'ok');
+    s.getTracks().forEach(tr => tr.stop());
+  } catch (e) { log('getUserMedia falhou: ' + e.name + ' — ' + e.message, 'err'); return; }
+
+  const r = new SR();
+  r.lang = 'pt-BR'; r.continuous = false; r.interimResults = true;
+  ['start','audiostart','soundstart','speechstart','speechend','soundend','audioend','nomatch','end']
+    .forEach(n => r.addEventListener(n, () => log('evento: ' + n, n === 'end' ? 'warn' : '')));
+  r.onresult = (e) => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      log('RESULTADO' + (e.results[i].isFinal ? ' (final)' : ' (parcial)') + ': "' + e.results[i][0].transcript + '"', 'ok');
+    }
+  };
+  r.onerror = (e) => log('ERRO: ' + e.error + (e.message ? ' — ' + e.message : ''), 'err');
+  log('Chamando recognition.start() — fale agora...');
+  try { r.start(); } catch (e) { log('start() falhou: ' + e.message, 'err'); }
+  setTimeout(() => log('(10s) Se não apareceu RESULTADO nem ERRO, o serviço de voz não respondeu.', 'warn'), 10000);
+};
+</script>
+</body>
+</html>
